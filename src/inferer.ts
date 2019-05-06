@@ -4,6 +4,17 @@ interface SchemaObject {
   [key: string]: SchemaType;
 }
 
+type SchemaTypeID =
+  | 'unknownType'
+  | 'String'
+  | 'Boolean'
+  | 'Number'
+  | 'Null'
+  | 'Missing'
+  | 'Object'
+  | 'Array'
+  | 'Union';
+
 export interface ComplexTypeStatistics {
   [key: string]: {
     counter: number;
@@ -18,7 +29,7 @@ export interface PathStatistics {
 }
 
 export class SchemaType {
-  public type: string;
+  public type: SchemaTypeID;
   public marker?: string;
   public counter: number;
 
@@ -151,6 +162,10 @@ export class ObjectType extends SchemaType {
     this.schema = schema;
   }
 
+  public isSameType(other: SchemaType): other is ObjectType {
+    return other.type === this.type;
+  }
+
   public copy = () => {
     const result = new ObjectType(this.counter, this.marker);
     result.schema = Object.entries(this.schema).reduce(
@@ -168,11 +183,11 @@ export class ObjectType extends SchemaType {
     other: SchemaType,
     counter?: number
   ): UnionType | ObjectType => {
-    if (other.type !== 'Object') {
+    if (!this.isSameType(other)) {
       return new UnionType().combine(this, counter).combine(other, counter);
     }
 
-    let combinedSchema = Object.entries((other as ObjectType).schema).reduce(
+    let combinedSchema = Object.entries(other.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
         if (!this.schema[key]) {
           const missing = new MissingType(this.counter, this.marker);
@@ -190,7 +205,7 @@ export class ObjectType extends SchemaType {
 
     combinedSchema = Object.entries(this.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
-        if (!(other as ObjectType).schema[key]) {
+        if (!other.schema[key]) {
           const missing = new MissingType(other.counter, other.marker);
           partial[key] = new UnionType()
             .combine(schema, counter)
@@ -230,6 +245,10 @@ export class ArrayType extends SchemaType {
     this.types = types;
   }
 
+  public isSameType(other: SchemaType): other is ArrayType {
+    return other.type === this.type;
+  }
+
   public copy = () => {
     const result = new ArrayType(this.counter, this.marker);
     result.types = Object.entries(this.types).reduce(
@@ -247,7 +266,7 @@ export class ArrayType extends SchemaType {
     other: SchemaType,
     counter?: number
   ): UnionType | ArrayType => {
-    if (other.type !== 'Array') {
+    if (!this.isSameType(other)) {
       return new UnionType().combine(this, counter).combine(other, counter);
     }
 
@@ -259,7 +278,7 @@ export class ArrayType extends SchemaType {
       {}
     );
 
-    combinedTypes = Object.entries((other as ArrayType).types).reduce(
+    combinedTypes = Object.entries(other.types).reduce(
       (partial: SchemaObject, [type, schema]) => {
         if (partial[type]) {
           partial[type] = partial[type].combine(schema, counter);
@@ -302,6 +321,10 @@ export class UnionType extends SchemaType {
     this.types = types;
   }
 
+  public isSameType(other: SchemaType): other is UnionType {
+    return other.type === this.type;
+  }
+
   public copy = () => {
     const result = new UnionType();
 
@@ -326,8 +349,8 @@ export class UnionType extends SchemaType {
       {}
     );
 
-    if (other.type === 'Union') {
-      combinedTypes = Object.entries((other as UnionType).types).reduce(
+    if (this.isSameType(other)) {
+      combinedTypes = Object.entries(other.types).reduce(
         (types: SchemaObject, [type, schema]) => {
           if (types[type]) {
             types[type] = types[type].combine(schema, counter);
