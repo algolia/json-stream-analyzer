@@ -70,9 +70,7 @@ describe('ArrayType simple test case', () => {
     });
 
     it('can combine with NullType', () => {
-      const combined : UnionType = new ArrayType().combine(
-        new NullType()
-      );
+      const combined: UnionType = new ArrayType().combine(new NullType());
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -159,11 +157,7 @@ describe('Array type SAT test case', () => {
   });
 
   it('defines correct schema for null arrays', () => {
-    const converted = new ArrayType().convert([
-      null,
-      null,
-      null,
-    ]) as ArrayType;
+    const converted = new ArrayType().convert([null, null, null]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Null).toBeDefined();
@@ -181,11 +175,7 @@ describe('Array type SAT test case', () => {
   });
 
   it('defines correct schema for array arrays', () => {
-    const converted = new ArrayType().convert([
-      [234],
-      [24],
-      [23],
-    ]) as ArrayType;
+    const converted = new ArrayType().convert([[234], [24], [23]]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Array).toBeDefined();

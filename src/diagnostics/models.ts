@@ -10,5 +10,5 @@ export interface Diagnostic {
   type: string;
   name: string;
   marker?: string;
-  frequencies: DiagnosticFrequency[]
+  frequencies: DiagnosticFrequency[];
 }

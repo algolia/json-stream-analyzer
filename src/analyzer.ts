@@ -4,12 +4,12 @@ import { Diagnostic } from './diagnostics/models';
 
 export interface AnalyzerOptions {
   generator: (params: any) => AsyncIterator<any>;
-  estimator: (params: any) => { size: number, exact: boolean };
+  estimator: (params: any) => { size: number; exact: boolean };
 }
 
 class Analyzer {
   private generator: (params: any) => AsyncIterator<any>;
-  private estimator: (params: any) => { size: number, exact: boolean };
+  private estimator: (params: any) => { size: number; exact: boolean };
   private browser?: AsyncIterator<any>;
   private browsing: boolean;
   private model: SchemaType | null;
@@ -17,7 +17,7 @@ class Analyzer {
   private total: number;
   private exact: boolean;
 
-  constructor({ generator, estimator }: AnalyzerOptions) {
+  public constructor({ generator, estimator }: AnalyzerOptions) {
     this.generator = generator;
     this.estimator = estimator;
     this.browsing = false;
@@ -34,25 +34,23 @@ class Analyzer {
 
     let completed = false;
     while (this.browsing && !completed) {
-      let { value, done } = await this.browser.next();
+      const { value, done } = await this.browser.next();
       completed = done;
       if (!done) {
         const schema = convertToSchema(value, value.objectID);
         if (!this.model) {
           this.model = schema;
-        }
-        else {
+        } else {
           this.model = this.model.combine(schema);
         }
         this.processed += 1;
-      }
-      else {
+      } else {
         this.browsing = false;
       }
     }
-  }
+  };
 
-  start = async (browserParams: any) => {
+  public start = async (browserParams: any) => {
     const { size, exact } = await this.estimator(browserParams);
     this.total = size;
     this.exact = exact;
@@ -60,29 +58,29 @@ class Analyzer {
     this.browsing = true;
     this.model = null;
     this.processed = 0;
-    this.computeSchema()
-  }
-  
-  pause = () => {
-    this.browsing = false
-  }
+    this.computeSchema();
+  };
 
-  resume = () => {
+  public pause = () => {
+    this.browsing = false;
+  };
+
+  public resume = () => {
     this.browsing = true;
     this.computeSchema();
-  }
+  };
 
-  diagnose = () => {
+  public diagnose = () => {
     if (!this.model) {
       return {
         processed: {
           count: 0,
           total: 0,
-          exact: this.exact
+          exact: this.exact,
         },
         issues: [] as Diagnostic[],
         model: { type: 'Unknown', counter: 0 } as SchemaType,
-      }
+      };
     }
 
     const issues = [...diagnoseTypeIssues(this.model)];
@@ -90,12 +88,12 @@ class Analyzer {
       processed: {
         count: this.processed,
         total: this.total,
-        exact: this.exact
+        exact: this.exact,
       },
       issues,
-      model: this.model
-    }
-  }
+      model: this.model,
+    };
+  };
 }
 
 export default Analyzer;

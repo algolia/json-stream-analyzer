@@ -1,0 +1,11 @@
+{
+  "extends": ["algolia/typescript", "plugin:import/typescript"],
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "jest": true
+  },
+  "plugins": ["prettier", "@typescript-eslint"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
