@@ -1,4 +1,5 @@
 import Analyzer, { AnalyzerOptions } from '../analyzer';
+import { SchemaType } from '../inferer';
 
 async function* generator(inputs: any[]): AsyncIterator<any> {
   let cursor = 0;
@@ -52,13 +53,14 @@ describe('Analyzer', () => {
         exact: true,
       },
       issues: [],
-      model: { type: 'Unknown', counter: 0 },
+      model: new SchemaType(0),
     };
 
     await analyzer.start();
     const actual = analyzer.diagnose();
 
-    expect(actual).toEqual(expected);
+    expect(actual.processed).toEqual(expected.processed);
+    expect(actual.issues).toEqual(expected.issues);
   });
 
   it('finds missing field issues', async () => {

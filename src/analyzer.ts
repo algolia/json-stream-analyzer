@@ -82,7 +82,7 @@ class Analyzer {
           exact: this.exact,
         },
         issues: [] as Diagnostic[],
-        model: { type: 'Unknown', counter: 0 } as SchemaType,
+        model: new SchemaType(0),
       };
     }
 
