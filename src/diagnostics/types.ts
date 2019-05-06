@@ -1,45 +1,7 @@
-import { SchemaType, UnionType, ArrayType, ObjectType } from "../inferer";
-import { Diagnostic, TypeStatsPath, TypeStats, DiagnosticFrequency } from "./models";
+import { SchemaType, PathStatistics, ComplexTypeStatistics } from "../inferer";
+import { Diagnostic, DiagnosticFrequency } from "./models";
 
-// TODO this could maybe be a method on SchemaType (it could allow for easier extensibility -- less files to modify when adding types/formats)
-const convertSchemaToPathList = (model: SchemaType, path = '', list: TypeStatsPath[] = []) => {
-  if (model.type === 'Union') {
-    const unionModel = model as UnionType;
-    const stats = Object.entries(unionModel.types).reduce((partial: TypeStats, [ key, value ]) => {
-      partial[key] = { counter: value.counter, marker: value.marker };
-      return partial;
-    }, {});
-    list.push({ path, stats, type: 'Union' });
-
-    Object.entries(unionModel.types).forEach(([key, value]) => {
-      convertSchemaToPathList(value, `${path}.(${key})`, list);
-    })
-  }
-
-  if (model.type === 'Array') {
-    const arrayModel = model as ArrayType;
-    const stats = Object.entries(arrayModel.types).reduce((partial: TypeStats, [ key, value ]) => {
-      partial[key] = { counter: value.counter, marker: value.marker };
-      return partial;
-    }, {});
-    list.push({ path, stats, type: 'Array' });
-
-    Object.entries(arrayModel.types).forEach(([key, value]) => {
-      convertSchemaToPathList(value, `${path}.[${key}]`, list);
-    });
-  }
-
-  if (model.type === 'Object') {
-    const objectModel = model as ObjectType;
-    Object.entries(objectModel.schema).forEach(([key, value]) => {
-      convertSchemaToPathList(value, `${path}.${key}`, list);
-    });
-  }
-
-  return list;
-}
-
-const computeDiagnosticFrequencies = (stats: TypeStats): DiagnosticFrequency[] => {
+const computeDiagnosticFrequencies = (stats: ComplexTypeStatistics): DiagnosticFrequency[] => {
   const total = Object.values(stats).reduce((sum, { counter }) => sum + counter, 0);
 
   const frequencies: DiagnosticFrequency[] = Object.entries(stats).map(([ key, value ]) => {
@@ -54,9 +16,9 @@ const computeDiagnosticFrequencies = (stats: TypeStats): DiagnosticFrequency[] =
   return frequencies;
 }
 
-const diagnoseMissingType = (path: TypeStatsPath): string | null => {
-  if (path.stats.Missing) {
-    const ratio = path.stats.Missing.counter/Object.values(path.stats).reduce((sum, { counter }) => sum + counter, 0);
+const diagnoseMissingType = (pathStats: PathStatistics): string | null => {
+  if (pathStats.stats.Missing) {
+    const ratio = pathStats.stats.Missing.counter/Object.values(pathStats.stats).reduce((sum, { counter }) => sum + counter, 0);
     if (ratio < 0.5) {
       return 'missing'
     } else {
@@ -72,16 +34,16 @@ const isMultiType = (types: string[]) => {
   return types.length > 2;
 }
 
-const diagnoseMultiType = (path: TypeStatsPath): string | null => {
-  if (isMultiType(Object.keys(path.stats))) {
+const diagnoseMultiType = (pathStats: PathStatistics): string | null => {
+  if (isMultiType(Object.keys(pathStats.stats))) {
     return 'multi'
   }
 
   return null;
 };
 
-const diagnoseNumericalKeysOnObject = (path: TypeStatsPath): string | null => {
-  const leaf = path.path.split('.').slice(-1)[0];
+const diagnoseNumericalKeysOnObject = (pathStats: PathStatistics): string | null => {
+  const leaf = pathStats.path.slice(-1)[0];
   if (Number.isNaN(parseFloat(leaf))) {
     return null;
   }
@@ -91,9 +53,9 @@ const diagnoseNumericalKeysOnObject = (path: TypeStatsPath): string | null => {
 
 
 const diagnoseTypeIssues = (model: SchemaType) => {
-  const pathList = convertSchemaToPathList(model);
+  const pathList = model.asList();
 
-  return pathList.reduce((diagnostics: Diagnostic[], path: TypeStatsPath) => {
+  return pathList.reduce((diagnostics: Diagnostic[], path: PathStatistics) => {
     const frequencies = computeDiagnosticFrequencies(path.stats);
     let issues = [
       diagnoseMissingType(path),

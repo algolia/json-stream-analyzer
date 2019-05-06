@@ -1,5 +1,18 @@
 interface SchemaObject { [key: string]: SchemaType };
 
+export interface ComplexTypeStatistics {
+  [key: string]: {
+    counter: number,
+    marker?: string
+  }
+}
+
+export interface PathStatistics {
+  path: string[];
+  stats: ComplexTypeStatistics,
+  type: string;
+}
+
 export class SchemaType {
   type: string;
   marker?: string;
@@ -73,6 +86,13 @@ export class SchemaType {
   copy = () => {
     // @ts-ignore
     return new this.constructor(this.counter, this.marker);
+  }
+
+  asList = (path: string[] = []): PathStatistics[] => {
+    // If the type/format is simple (boolean, number, null, etc.), don't return
+    // any data, as we only care about complex types, like Object, Arrays, Unions
+    // and complex formats, like String/URL, String/Date, etc.
+    return [];
   }
 }
 
@@ -163,6 +183,12 @@ export class ObjectType extends SchemaType {
     // @ts-ignore
     return new this.constructor(combinedCounter, this.marker, combinedSchema);
   }
+
+  asList = (path: string[] = []): PathStatistics[] => {
+    return Object.entries(this.schema).reduce((acc: PathStatistics[], [key, value]) => {
+      return [...acc, ...value.asList([...path, key])];
+    }, []);
+  }
 }
 
 export class ArrayType extends SchemaType {
@@ -211,6 +237,21 @@ export class ArrayType extends SchemaType {
     const combinedCounter = counter || (this.counter + other.counter);
     // @ts-ignore
     return new this.constructor(combinedCounter, this.marker, combinedTypes);
+  }
+
+  asList = (path: string[] = []): PathStatistics[] => {
+    const list: PathStatistics[] = [];
+    const stats = Object.entries(this.types).reduce((partial, [ key, value ]) => {
+      return {
+        ...partial,
+        [key]: { counter: value.counter, marker: value.marker }
+      }
+    }, {});
+    list.push({ path, stats, type: 'Array' });
+
+    return Object.entries(this.types).reduce((acc, [key, value]) => {
+      return [...acc, ...value.asList([...path, `[${key}]`])];
+    }, list);
   }
 }
 
@@ -263,6 +304,21 @@ export class UnionType extends SchemaType {
     const combinedCounter = counter || (this.counter + other.counter);
     // @ts-ignore
     return new this.constructor(combinedCounter, combinedTypes);
+  }
+
+  asList = (path: string[] = []): PathStatistics[] => {
+    const list: PathStatistics[] = [];
+    const stats = Object.entries(this.types).reduce((partial, [ key, value ]) => {
+      return {
+        ...partial,
+        [key]: { counter: value.counter, marker: value.marker }
+      };
+    }, {});
+    list.push({ path, stats, type: 'Union' });
+
+    return Object.entries(this.types).reduce((acc, [key, value]) => {
+      return [...acc, ...value.asList([...path, `(${key})`])];
+    }, list);
   }
 }
 

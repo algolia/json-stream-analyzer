@@ -6,23 +6,9 @@ export interface DiagnosticFrequency {
 }
 
 export interface Diagnostic {
-  path: string;
+  path: string[];
   type: string;
   name: string;
   marker?: string;
   frequencies: DiagnosticFrequency[]
-}
-
-// Type models
-export interface TypeStats {
-  [key: string]: {
-    counter: number,
-    marker?: string
-  }
-}
-
-export interface TypeStatsPath {
-  path: string;
-  stats: TypeStats,
-  type: string;
 }
