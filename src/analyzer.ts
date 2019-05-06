@@ -4,12 +4,14 @@ import { Diagnostic } from './diagnostics/models';
 
 export interface AnalyzerOptions {
   generator: (params: any) => AsyncIterator<any>;
-  estimator: (params: any) => { size: number; exact: boolean };
+  estimator: (params: any) => Promise<{ size: number; exact: boolean }>;
+  tag: (value: any) => string;
 }
 
 class Analyzer {
   private generator: (params: any) => AsyncIterator<any>;
-  private estimator: (params: any) => { size: number; exact: boolean };
+  private estimator: (params: any) => Promise<{ size: number; exact: boolean }>;
+  private tag: (value: any) => string;
   private browser?: AsyncIterator<any>;
   private browsing: boolean;
   private model: SchemaType | null;
@@ -17,9 +19,10 @@ class Analyzer {
   private total: number;
   private exact: boolean;
 
-  public constructor({ generator, estimator }: AnalyzerOptions) {
+  public constructor({ generator, estimator, tag }: AnalyzerOptions) {
     this.generator = generator;
     this.estimator = estimator;
+    this.tag = tag;
     this.browsing = false;
     this.model = null;
     this.processed = 0;
@@ -37,7 +40,7 @@ class Analyzer {
       const { value, done } = await this.browser.next();
       completed = done;
       if (!done) {
-        const schema = convertToSchema(value, value.objectID);
+        const schema = convertToSchema(value, this.tag(value));
         if (!this.model) {
           this.model = schema;
         } else {
@@ -50,7 +53,7 @@ class Analyzer {
     }
   };
 
-  public start = async (browserParams: any) => {
+  public start = async (browserParams?: any): Promise<void> => {
     const { size, exact } = await this.estimator(browserParams);
     this.total = size;
     this.exact = exact;
@@ -58,7 +61,7 @@ class Analyzer {
     this.browsing = true;
     this.model = null;
     this.processed = 0;
-    this.computeSchema();
+    return this.computeSchema();
   };
 
   public pause = () => {
