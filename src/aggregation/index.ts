@@ -1,14 +1,5 @@
-import { Analysis } from '../analysis';
-import { Diagnostic } from '../analysis/models';
+import { Diagnostic, PathDiagnosticAggregate } from '../models';
 import { UnionType, ArrayType, ObjectType, SchemaType } from '../inference';
-
-export interface PathDiagnosticAggregate {
-  path: string[];
-  issues: Diagnostic[];
-  nbIssues: number;
-  totalAffected: number;
-  total: number;
-}
 
 const convertPathToKey = (path: string[]): string => {
   return path
@@ -23,25 +14,24 @@ const traverseModel = (
   const actualPath: string[] = [];
   let schema = model;
 
+  const pathCopy = [...path];
   let pathTraversed = false;
-  while (!pathTraversed && path.length > 0) {
-    const segment = path.shift();
+  while (!pathTraversed && pathCopy.length > 0) {
+    const segment = pathCopy.shift();
     actualPath.push(segment!);
 
     if (segment!.match(/^\(.*\)$/) && schema.type === 'Union') {
       // the type-check is fail-safe -- this should never be false without a processing bug
       const match = segment!.match(/^\((.*)\)$/);
-      schema = (schema as UnionType).types[match![0]];
+      schema = (schema as UnionType).types[match![1]];
     } else if (segment!.match(/^\[.*\]$/) && schema.type === 'Array') {
       // the type-check is a fail-safe -- this should never be false without a processing bug
       const match = segment!.match(/^\[(.*)\]$/);
-      schema = (schema as ArrayType).types[match![0]];
+      schema = (schema as ArrayType).types[match![1]];
     } else if (schema.type === 'Object') {
       schema = (schema as ObjectType).schema[segment!];
     } else {
       pathTraversed = true;
-      // the last added element was actually not used to traverse the model
-      actualPath.pop();
     }
   }
 
@@ -49,9 +39,10 @@ const traverseModel = (
 };
 
 export const aggregateByPath = (
-  analysis: Analysis
+  issues: Diagnostic[],
+  model: SchemaType
 ): PathDiagnosticAggregate[] => {
-  const pathIssues: { [key: string]: Diagnostic[] } = analysis.issues.reduce(
+  const pathIssues: { [key: string]: Diagnostic[] } = issues.reduce(
     (acc: { [key: string]: Diagnostic[] }, diagnostic) => {
       const pathKey = convertPathToKey(diagnostic.path);
       const list = acc[pathKey] || [];
@@ -63,10 +54,11 @@ export const aggregateByPath = (
 
   return Object.values(pathIssues).map(
     (diagnostics: Diagnostic[]): PathDiagnosticAggregate => {
-      const { model, path } = traverseModel(
+      const { model: subModel, path } = traverseModel(
         diagnostics[0].path,
-        analysis.model
+        model
       );
+
       return {
         path,
         issues: diagnostics,
@@ -75,7 +67,7 @@ export const aggregateByPath = (
           (sum, { affected }) => sum + affected,
           0
         ),
-        total: model.counter,
+        total: subModel.counter,
       };
     }
   );
