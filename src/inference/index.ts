@@ -1,32 +1,9 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-param-reassign */
+import { SchemaTypeID, PathStatistics } from '../models';
+
 interface SchemaObject {
   [key: string]: SchemaType;
-}
-
-export type SchemaTypeID =
-  | 'unknownType'
-  | 'String'
-  | 'Boolean'
-  | 'Number'
-  | 'Null'
-  | 'Missing'
-  | 'Object'
-  | 'Array'
-  | 'Union';
-
-export interface ComplexTypeStatistics {
-  [key: string]: {
-    counter: number;
-    marker?: string;
-  };
-}
-
-export interface PathStatistics {
-  path: string[];
-  total: number;
-  stats: ComplexTypeStatistics;
-  type: SchemaTypeID;
 }
 
 export class SchemaType {

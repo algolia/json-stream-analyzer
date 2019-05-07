@@ -1,5 +1,4 @@
-import { SchemaType, PathStatistics } from '../inference';
-import { Diagnostic } from './models';
+import { Diagnostic, PathStatistics } from '../models';
 
 /**
  * Finds Union Types that have a missing Type
@@ -188,8 +187,7 @@ const diagnoseNumericalKeysOnObject = ({
   return [diagnostic];
 };
 
-const diagnoseTypeIssues = (model: SchemaType): Diagnostic[] => {
-  const pathList = model.asList();
+const diagnose = (pathList: PathStatistics[]): Diagnostic[] => {
   return pathList
     .map(pathStats => [
       ...diagnoseUnionWithMissing(pathStats),
@@ -201,4 +199,4 @@ const diagnoseTypeIssues = (model: SchemaType): Diagnostic[] => {
     .reduce((f, l) => [...f, ...l], []);
 };
 
-export default diagnoseTypeIssues;
+export default diagnose;

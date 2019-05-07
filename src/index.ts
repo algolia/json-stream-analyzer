@@ -1,6 +1,7 @@
-import convertToSchema, { SchemaType } from '../inference';
+import convertToSchema, { SchemaType } from './inference';
 import diagnose from './diagnostics';
-import { Diagnostic } from './models';
+import { Diagnostic, PathDiagnosticAggregate } from './models';
+import { aggregateByPath } from './aggregation';
 
 export interface AnalyzerOptions {
   generator: (params: any) => AsyncIterator<any>;
@@ -14,7 +15,7 @@ export interface Analysis {
     total: number;
     exact: boolean;
   };
-  issues: Diagnostic[];
+  issues: PathDiagnosticAggregate[];
   model: SchemaType;
 }
 
@@ -96,13 +97,21 @@ class Analyzer {
       };
     }
 
+    const diagnostics: Diagnostic[] = diagnose(this.model.asList());
+    const issues: PathDiagnosticAggregate[] = aggregateByPath(
+      diagnostics,
+      this.model
+    );
+
+    issues.sort(({ totalAffected: a }, { totalAffected: b }) => b - a);
+
     return {
       processed: {
         count: this.processed,
         total: this.total,
         exact: this.exact,
       },
-      issues: diagnose(this.model),
+      issues,
       model: this.model,
     };
   };
