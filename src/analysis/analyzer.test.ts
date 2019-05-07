@@ -1,5 +1,6 @@
-import Analyzer, { AnalyzerOptions } from '../analyzer';
-import { SchemaType } from '../inferer';
+import Analyzer, { AnalyzerOptions } from '.';
+import { SchemaType } from '../inference';
+import { Diagnostic } from './models';
 
 async function* generator(inputs: any[]): AsyncIterator<any> {
   let cursor = 0;
@@ -74,13 +75,12 @@ describe('Analyzer', () => {
 
     const expected = [
       {
-        name: 'missing',
-        path: ['opt'],
+        id: 'missing',
+        title: 'Missing Data',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 2, ratio: 2 / 3 },
-          { cause: 'Missing', marker: '1', count: 1, ratio: 1 / 3 },
-        ],
+        path: ['opt'],
+        affected: 1,
+        marker: '1',
       },
     ];
 
@@ -90,47 +90,84 @@ describe('Analyzer', () => {
     expect(actual.issues).toEqual(expected);
   });
 
-  it('finds extra field issues', async () => {
-    const params = initParams([{ id: 12, opt: 13 }, { id: 1 }, { id: 16 }]);
-
-    const analyzer = new Analyzer(params);
-
-    const expected = [
-      {
-        name: 'extra',
-        path: ['opt'],
-        type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 1, ratio: 1 / 3 },
-          { cause: 'Missing', marker: '1', count: 2, ratio: 2 / 3 },
-        ],
-      },
-    ];
-
-    await analyzer.start();
-    const actual = analyzer.diagnose();
-
-    expect(actual.issues).toEqual(expected);
-  });
-
-  it('finds extra multi-type issues', async () => {
+  it('finds empty array issues', async () => {
     const params = initParams([
-      { id: 12, opt: 13 },
-      { id: 1, opt: '42' },
-      { id: 16, opt: 16 },
+      { id: 12, opt: [123] },
+      { id: 1, opt: [] },
+      { id: 16, opt: [42] },
     ]);
 
     const analyzer = new Analyzer(params);
 
     const expected = [
       {
-        name: 'multi',
+        id: 'emptyArray',
+        title: 'Empty Array',
+        type: 'Array',
         path: ['opt'],
+        affected: 1,
+        marker: '1',
+      },
+    ];
+
+    await analyzer.start();
+    const actual = analyzer.diagnose();
+
+    expect(actual.issues).toEqual(expected);
+  });
+
+  it('finds inconsistentType issues', async () => {
+    const params = initParams([
+      { id: 12, opt: 13 },
+      { id: 1, opt: '42' },
+      { id: 16, opt: 16 },
+      { id: 42, opt: null },
+    ]);
+
+    const analyzer = new Analyzer(params);
+
+    const expected: Diagnostic[] = [
+      {
+        id: 'inconsistentType',
+        title: 'Inconsistent Type (String instead of Number)',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 2, ratio: 2 / 3 },
-          { cause: 'String', marker: '1', count: 1, ratio: 1 / 3 },
-        ],
+        path: ['opt'],
+        affected: 1,
+        marker: '1',
+      },
+      {
+        id: 'inconsistentType',
+        title: 'Inconsistent Type (Null instead of Number)',
+        type: 'Union',
+        path: ['opt'],
+        affected: 1,
+        marker: '42',
+      },
+    ];
+
+    await analyzer.start();
+    const actual = analyzer.diagnose();
+
+    expect(actual.issues).toEqual(expected);
+  });
+
+  it('finds polymorphic array issues', async () => {
+    const params = initParams([
+      { id: 12, opt: [13] },
+      { id: 1, opt: ['42'] },
+      { id: 16, opt: [16, null] },
+    ]);
+
+    const analyzer = new Analyzer(params);
+
+    const expected: Diagnostic[] = [
+      {
+        id: 'polymorphicArray',
+        title: 'Array may contain multiple types',
+        type: 'Array',
+        path: ['opt'],
+        affected: 3,
+        marker: '12',
       },
     ];
 
@@ -149,26 +186,22 @@ describe('Analyzer', () => {
 
     const analyzer = new Analyzer(params);
 
-    const expected = [
+    const expected: Diagnostic[] = [
       {
-        name: 'missing',
-        path: ['opt'],
+        id: 'missing',
+        title: 'Missing Data',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 1, ratio: 1 / 3 },
-          { cause: 'String', marker: '1', count: 1, ratio: 1 / 3 },
-          { cause: 'Missing', marker: '16', count: 1, ratio: 1 / 3 },
-        ],
+        path: ['opt'],
+        affected: 1,
+        marker: '16',
       },
       {
-        name: 'multi',
-        path: ['opt'],
+        id: 'inconsistentType',
+        title: 'Inconsistent Type (String instead of Number)',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 1, ratio: 1 / 3 },
-          { cause: 'String', marker: '1', count: 1, ratio: 1 / 3 },
-          { cause: 'Missing', marker: '16', count: 1, ratio: 1 / 3 },
-        ],
+        path: ['opt'],
+        affected: 1,
+        marker: '1',
       },
     ];
 
@@ -187,15 +220,14 @@ describe('Analyzer', () => {
 
     const analyzer = new Analyzer(params);
 
-    const expected = [
+    const expected: Diagnostic[] = [
       {
-        name: 'missing',
-        path: ['a', 'opt'],
+        id: 'missing',
+        title: 'Missing Data',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 2, ratio: 2 / 3 },
-          { cause: 'Missing', marker: '1', count: 1, ratio: 1 / 3 },
-        ],
+        path: ['a', 'opt'],
+        affected: 1,
+        marker: '1',
       },
     ];
 
@@ -217,15 +249,14 @@ describe('Analyzer', () => {
 
     const analyzer = new Analyzer(params);
 
-    const expected = [
+    const expected: Diagnostic[] = [
       {
-        name: 'extra',
-        path: ['opt'],
+        id: 'missing',
+        title: 'Missing Data',
         type: 'Union',
-        frequencies: [
-          { cause: 'Number', marker: '12', count: 3, ratio: 1 / 2 },
-          { cause: 'Missing', marker: '1', count: 3, ratio: 1 / 2 },
-        ],
+        path: ['opt'],
+        affected: 3,
+        marker: '1',
       },
     ];
 

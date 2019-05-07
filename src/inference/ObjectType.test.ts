@@ -7,7 +7,7 @@ import {
   ObjectType,
   UnionType,
   MissingType,
-} from '../inferer';
+} from '.';
 
 describe('ObjectType simple test case', () => {
   describe('constructor', () => {

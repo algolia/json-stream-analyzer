@@ -4,7 +4,7 @@ interface SchemaObject {
   [key: string]: SchemaType;
 }
 
-type SchemaTypeID =
+export type SchemaTypeID =
   | 'unknownType'
   | 'String'
   | 'Boolean'
@@ -24,8 +24,9 @@ export interface ComplexTypeStatistics {
 
 export interface PathStatistics {
   path: string[];
+  total: number;
   stats: ComplexTypeStatistics;
-  type: string;
+  type: SchemaTypeID;
 }
 
 export class SchemaType {
@@ -223,11 +224,23 @@ export class ObjectType extends SchemaType {
   };
 
   public asList = (path: string[] = []): PathStatistics[] => {
+    const list: PathStatistics[] = [];
+    const stats = Object.entries(this.schema).reduce(
+      (partial, [key, value]) => {
+        return {
+          ...partial,
+          [key]: { counter: value.counter, marker: value.marker },
+        };
+      },
+      {}
+    );
+    list.push({ path, stats, total: this.counter, type: 'Object' });
+
     return Object.entries(this.schema).reduce(
       (acc: PathStatistics[], [key, value]) => {
         return [...acc, ...value.asList([...path, key])];
       },
-      []
+      list
     );
   };
 }
@@ -304,7 +317,7 @@ export class ArrayType extends SchemaType {
         [key]: { counter: value.counter, marker: value.marker },
       };
     }, {});
-    list.push({ path, stats, type: 'Array' });
+    list.push({ path, stats, total: this.counter, type: 'Array' });
 
     return Object.entries(this.types).reduce((acc, [key, value]) => {
       return [...acc, ...value.asList([...path, `[${key}]`])];
@@ -383,7 +396,7 @@ export class UnionType extends SchemaType {
         [key]: { counter: value.counter, marker: value.marker },
       };
     }, {});
-    list.push({ path, stats, type: 'Union' });
+    list.push({ path, stats, total: this.counter, type: 'Union' });
 
     return Object.entries(this.types).reduce((acc, [key, value]) => {
       return [...acc, ...value.asList([...path, `(${key})`])];
