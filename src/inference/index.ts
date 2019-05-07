@@ -54,7 +54,7 @@ export class SchemaType {
    */
   public combine = (other: SchemaType, counter?: number) => {
     if (other.type === this.type) {
-      // @ts-ignore
+      // @ts-ignore ts(2351)
       const result = new other.constructor(
         counter || this.counter + other.counter,
         this.marker
@@ -129,7 +129,7 @@ export class SchemaType {
    * @returns {SchemaType} the copy
    */
   public copy = () => {
-    // @ts-ignore
+    // @ts-ignore ts(2351)
     return new this.constructor(this.counter, this.marker);
   };
 
@@ -279,7 +279,7 @@ export class ObjectType extends SchemaType {
     );
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore
+    // @ts-ignore ts(2351)
     return new this.constructor(combinedCounter, this.marker, combinedSchema);
   };
 
@@ -403,7 +403,7 @@ export class ArrayType extends SchemaType {
     );
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore
+    // @ts-ignore ts(2351)
     return new this.constructor(combinedCounter, this.marker, combinedTypes);
   };
 
@@ -519,7 +519,7 @@ export class UnionType extends SchemaType {
     }
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore
+    // @ts-ignore ts(2351)
     return new this.constructor(combinedCounter, combinedTypes);
   };
 
