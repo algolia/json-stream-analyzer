@@ -1,11 +1,21 @@
-import convertToSchema, { SchemaType } from './inferer';
-import diagnoseTypeIssues from './diagnostics/types';
-import { Diagnostic } from './diagnostics/models';
+import convertToSchema, { SchemaType } from '../inference';
+import diagnose from './diagnostics';
+import { Diagnostic } from './models';
 
 export interface AnalyzerOptions {
   generator: (params: any) => AsyncIterator<any>;
   estimator: (params: any) => Promise<{ size: number; exact: boolean }>;
   tag: (value: any) => string;
+}
+
+export interface Analysis {
+  processed: {
+    count: number;
+    total: number;
+    exact: boolean;
+  };
+  issues: Diagnostic[];
+  model: SchemaType;
 }
 
 class Analyzer {
@@ -73,7 +83,7 @@ class Analyzer {
     this.computeSchema();
   };
 
-  public diagnose = () => {
+  public diagnose = (): Analysis => {
     if (!this.model) {
       return {
         processed: {
@@ -81,19 +91,18 @@ class Analyzer {
           total: 0,
           exact: this.exact,
         },
-        issues: [] as Diagnostic[],
+        issues: [],
         model: new SchemaType(0),
       };
     }
 
-    const issues = [...diagnoseTypeIssues(this.model)];
     return {
       processed: {
         count: this.processed,
         total: this.total,
         exact: this.exact,
       },
-      issues,
+      issues: diagnose(this.model),
       model: this.model,
     };
   };
