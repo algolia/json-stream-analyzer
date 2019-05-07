@@ -1,6 +1,6 @@
 import convertToSchema, { SchemaType } from '../inference';
 import { PathDiagnosticAggregate } from '../models';
-import { aggregateByPath } from '.';
+import { aggregateByPath, convertPathToKey } from '.';
 import diagnose from '../diagnostics';
 
 const createModel = (inputs: any[]): SchemaType => {
@@ -13,6 +13,31 @@ const createModel = (inputs: any[]): SchemaType => {
     return model.combine(converted);
   }, null);
 };
+
+describe('convertPathToKey', () => {
+  it('should convert paths correctly', () => {
+    const model = createModel([
+      { toto: [{ a: [123] }] },
+      { toto: { a: ['test'] } },
+    ]);
+
+    const actual = model.asList().map(({ path }) => {
+      return convertPathToKey(path);
+    });
+
+    const expected = [
+      '', // root
+      'toto', // root.toto
+      'toto', // root.toto.(Array)
+      'toto.[]', // root.toto.(Array).[Object]
+      'toto.[].a', // root.toto.(Array).[Object].a
+      'toto', // root.toto.(Object)
+      'toto.a', // root.toto.(Object).a
+    ];
+
+    expect(actual).toEqual(expected);
+  });
+});
 
 describe('aggregateByPath', () => {
   it('aggregates all issues by path', () => {
@@ -60,7 +85,7 @@ describe('aggregateByPath', () => {
         total: 4,
       },
       {
-        path: ['optArray', '(Array)', '[Object]', 'description'],
+        path: ['optArray', '[]', 'description'],
         issues: [
           {
             id: 'missing',

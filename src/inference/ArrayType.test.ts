@@ -134,7 +134,7 @@ describe('ArrayType simple test case', () => {
   });
 });
 
-describe('Array type SAT test case', () => {
+describe('Simple Array Type test case', () => {
   it('defines correct schema for string arrays', () => {
     const converted = new ArrayType().convert([
       'someText',

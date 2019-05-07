@@ -188,15 +188,18 @@ const diagnoseNumericalKeysOnObject = ({
 };
 
 const diagnose = (pathList: PathStatistics[]): Diagnostic[] => {
-  return pathList
-    .map(pathStats => [
-      ...diagnoseUnionWithMissing(pathStats),
-      ...diagnoseArrayWithMissing(pathStats),
-      ...diagnoseInconsistentUnionType(pathStats),
-      ...diagnoseInconsistentArrayType(pathStats),
-      ...diagnoseNumericalKeysOnObject(pathStats),
-    ])
-    .reduce((f, l) => [...f, ...l], []);
+  return (
+    pathList
+      .map(pathStats => [
+        ...diagnoseUnionWithMissing(pathStats),
+        ...diagnoseArrayWithMissing(pathStats),
+        ...diagnoseInconsistentUnionType(pathStats),
+        ...diagnoseInconsistentArrayType(pathStats),
+        ...diagnoseNumericalKeysOnObject(pathStats),
+      ])
+      // flattens the list of lists into a list
+      .reduce((f, l) => [...f, ...l], [])
+  );
 };
 
 export default diagnose;

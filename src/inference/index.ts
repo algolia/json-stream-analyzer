@@ -21,6 +21,9 @@ export class SchemaType {
    * useful during the combination of the models, as models that are different can
    * then show different markers, which the user can then use to find what caused
    * the difference.
+   *
+   * Note: In the model, we will only ever keep only one marker on every node of the
+   * tree representation of the schema type
    */
   public marker?: string;
 
@@ -321,7 +324,8 @@ export class ArrayType extends SchemaType {
    * Note: We use the Simplified Array Type representation for Arrays. This
    * means that we don't keep track of ordering of the elements in the array
    * but only of the types present within. e.g. [1,2,3] and [1] will have the
-   * same ArrayType.
+   * same ArrayType. ['abc', 123] and [123, 'abc'] will also have the same
+   * ArrayType.
    */
   public types: SchemaObject;
 

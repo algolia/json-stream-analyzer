@@ -1,10 +1,19 @@
 import { Diagnostic, PathDiagnosticAggregate } from '../models';
 import { UnionType, ArrayType, ObjectType, SchemaType } from '../inference';
 
-const convertPathToKey = (path: string[]): string => {
+export const simplifyPath = (path: string[]): string[] => {
   return path
-    .filter(segment => !segment.match(/^(\[.*\])|(\(.*\))$/))
-    .join('&');
+    .map(segment => segment.replace(/^(\[.*\])/, '[]'))
+    .filter(segment => !segment.match(/^(\(.*\))$/));
+};
+
+/**
+ * @param {string[]} path - a JSON Path
+ * @returns {string} a simplified key that identifies all types that correspond
+ * to a path
+ */
+export const convertPathToKey = (path: string[]): string => {
+  return simplifyPath(path).join('.');
 };
 
 const traverseModel = (
@@ -60,7 +69,7 @@ export const aggregateByPath = (
       );
 
       return {
-        path,
+        path: simplifyPath(path),
         issues: diagnostics,
         nbIssues: diagnostics.length,
         totalAffected: diagnostics.reduce(
