@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "lib": ["es2017", "esnext.asynciterable"],
+    "sourceMap": true,
+    "target": "es2015",
+    "module": "umd",
+    "moduleResolution": "node",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true
+  },
+  "exclude": ["**/*.test.ts"]
+}
