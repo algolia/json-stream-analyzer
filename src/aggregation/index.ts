@@ -1,4 +1,4 @@
-import { Diagnostic, PathDiagnosticAggregate } from '../models';
+import { Diagnostic, PathDiagnosticAggregate } from '../interfaces';
 import { UnionType, ArrayType, ObjectType, SchemaType } from '../inference';
 
 export const simplifyPath = (path: string[]): string[] => {

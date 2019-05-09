@@ -4,7 +4,7 @@ import {
   Diagnostic,
   PathDiagnosticAggregate,
   Analyzer,
-} from '../models';
+} from '../interfaces';
 
 import convertToSchema from '../inference';
 import diagnose from '../diagnostics';

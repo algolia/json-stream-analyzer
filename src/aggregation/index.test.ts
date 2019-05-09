@@ -1,5 +1,5 @@
 import convertToSchema, { SchemaType } from '../inference';
-import { PathDiagnosticAggregate } from '../models';
+import { PathDiagnosticAggregate } from '../interfaces';
 import { aggregateByPath, convertPathToKey } from '.';
 import diagnose from '../diagnostics';
 

@@ -1,6 +1,6 @@
 import diagnose from '.';
 import convertToSchema, { SchemaType } from '../inference';
-import { Diagnostic } from '../models';
+import { Diagnostic } from '../interfaces';
 
 const createModel = (inputs: any[]): SchemaType => {
   return inputs.reduce((model: SchemaType | null, input: any) => {

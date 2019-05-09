@@ -1,4 +1,4 @@
-import { Diagnostic, PathStatistics } from '../models';
+import { Diagnostic, PathStatistics } from '../interfaces';
 
 /**
  * Finds Union Types that have a missing Type
