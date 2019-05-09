@@ -578,6 +578,6 @@ export class UnionType extends SchemaType {
   };
 }
 
-const convertToSchema = new SchemaType().convert;
+export const convertToSchema = new SchemaType().convert;
 
 export default convertToSchema;
