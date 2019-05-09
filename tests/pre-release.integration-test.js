@@ -1,6 +1,6 @@
 /**
  * Assumes that the following command was run before
- * `yarn build && cd dist && yarn unlink && yarn link && cd .. && yarn link json-stream-analyzer`
+ * `yarn build && cd dist && yarn unlink && yarn link && cd .. && yarn link @algolia/json-stream-analyzer`
  */
 describe('library structure', () => {
   beforeEach(() => {
@@ -8,7 +8,7 @@ describe('library structure', () => {
   });
 
   it('can require main library', () => {
-    const library = require('json-stream-analyzer');
+    const library = require('@algolia/json-stream-analyzer');
 
     expect(library).toBeDefined();
     expect(library.inference).toBeDefined();
@@ -20,28 +20,28 @@ describe('library structure', () => {
   });
 
   it('can require inference sub-library', () => {
-    const library = require('json-stream-analyzer/inference');
+    const library = require('@algolia/json-stream-analyzer/inference');
 
     expect(library).toBeDefined();
     expect(library.SchemaType).toBeDefined();
   });
 
   it('can require diagnostic sub-library', () => {
-    const library = require('json-stream-analyzer/diagnostics');
+    const library = require('@algolia/json-stream-analyzer/diagnostics');
 
     expect(library).toBeDefined();
     expect(library.diagnose).toBeDefined();
   });
 
   it('can require aggregation sub-library', () => {
-    const library = require('json-stream-analyzer/aggregation');
+    const library = require('@algolia/json-stream-analyzer/aggregation');
 
     expect(library).toBeDefined();
     expect(library.aggregateByPath).toBeDefined();
   });
 
   it('can require analyzers sub-library', () => {
-    const library = require('json-stream-analyzer/analyzers');
+    const library = require('@algolia/json-stream-analyzer/analyzers');
 
     expect(library).toBeDefined();
     expect(library.SyncAnalyzer).toBeDefined();
@@ -49,7 +49,7 @@ describe('library structure', () => {
 });
 
 describe('library behaviour', () => {
-  let library = require('json-stream-analyzer');
+  let library = require('@algolia/json-stream-analyzer');
 
   it('builds expected analysis', () => {
     const { SyncAnalyzer } = library.analyzers;
