@@ -1,27 +1,5 @@
-export type SchemaTypeID =
-  | 'unknownType'
-  | 'String'
-  | 'Boolean'
-  | 'Number'
-  | 'Null'
-  | 'Missing'
-  | 'Object'
-  | 'Array'
-  | 'Union';
-
-export interface ComplexTypeStatistics {
-  [key: string]: {
-    counter: number;
-    marker?: string;
-  };
-}
-
-export interface PathStatistics {
-  path: string[];
-  total: number;
-  stats: ComplexTypeStatistics;
-  type: SchemaTypeID;
-}
+import { SchemaType, SchemaTypeID } from './inference';
+export * from './inference';
 
 export type DiagnosticID =
   | 'missing'
@@ -45,4 +23,16 @@ export interface PathDiagnosticAggregate {
   nbIssues: number;
   totalAffected: number;
   total: number;
+}
+
+export interface Analysis {
+  processed: {
+    count: number;
+  };
+  issues: PathDiagnosticAggregate[];
+  model: SchemaType;
+}
+
+export interface Analyzer {
+  diagnose: () => Analysis;
 }

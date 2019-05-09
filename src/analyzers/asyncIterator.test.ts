@@ -1,5 +1,5 @@
-import Analyzer, { AnalyzerOptions } from '.';
-import { SchemaType } from './inference';
+import Analyzer, { AsyncIteratorAnalyzerOptions } from './asyncIterator';
+import { SchemaType } from '../inference';
 
 async function* generator(inputs: any[]): AsyncIterator<any> {
   let cursor = 0;
@@ -13,20 +13,9 @@ async function* generator(inputs: any[]): AsyncIterator<any> {
   return;
 }
 
-async function estimator(
-  inputs: any[]
-): Promise<{ size: number; exact: boolean }> {
-  await Promise.resolve();
-  return {
-    size: inputs.length,
-    exact: true,
-  };
-}
-
-const initParams = (inputs: any[]): AnalyzerOptions => {
+const initParams = (inputs: any[]): AsyncIteratorAnalyzerOptions => {
   return {
     generator: () => generator(inputs),
-    estimator: () => estimator(inputs),
     tag: (value: any) => (typeof value === 'object' ? `${value.id}` : 'tag'),
   };
 };
@@ -49,8 +38,6 @@ describe('Analyzer', () => {
     const expected = {
       processed: {
         count: 0,
-        total: 0,
-        exact: true,
       },
       issues: [],
       model: new SchemaType(0),

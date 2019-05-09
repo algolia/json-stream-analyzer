@@ -5,7 +5,7 @@ import { Diagnostic, PathStatistics } from '../models';
  * @param {PathStatistics} pathStats - the path statistics to inspect for issues
  * @returns {Diagnostic[]} the list of missing data issues found
  */
-const diagnoseUnionWithMissing = ({
+export const diagnoseUnionWithMissing = ({
   type,
   path,
   stats,
@@ -31,7 +31,7 @@ const diagnoseUnionWithMissing = ({
  * @param {PathStatistics} pathStats - the path statistics to inspect for issues
  * @returns {Diagnostic[]} the list of empty array issues found
  */
-const diagnoseArrayWithMissing = ({
+export const diagnoseArrayWithMissing = ({
   type,
   path,
   stats,
@@ -62,7 +62,7 @@ const isMultiType = (types: string[]): boolean => {
  * @param {PathStatistics} pathStats - the path statistics to inspect for issues
  * @returns {Diagnostic[]} the list of inconsistent type issues found
  */
-const diagnoseInconsistentUnionType = ({
+export const diagnoseInconsistentUnionType = ({
   type,
   path,
   stats,
@@ -116,7 +116,7 @@ const diagnoseInconsistentUnionType = ({
  * @param {PathStatistics} pathStats - the path statistics to inspect for issues
  * @returns {Diagnostic[]} the list of polymorphic array issues found
  */
-const diagnoseInconsistentArrayType = ({
+export const diagnoseInconsistentArrayType = ({
   type,
   path,
   stats,
@@ -152,7 +152,7 @@ const diagnoseInconsistentArrayType = ({
  * @param {PathStatistics} pathStats - the path statistics to inspect for issues
  * @returns {Diagnostic[]} the list of numerical keys on Object issues found
  */
-const diagnoseNumericalKeysOnObject = ({
+export const diagnoseNumericalKeysOnObject = ({
   path,
   stats,
   type,
@@ -187,7 +187,7 @@ const diagnoseNumericalKeysOnObject = ({
   return [diagnostic];
 };
 
-const diagnose = (pathList: PathStatistics[]): Diagnostic[] => {
+export const diagnose = (pathList: PathStatistics[]): Diagnostic[] => {
   return (
     pathList
       .map(pathStats => [
