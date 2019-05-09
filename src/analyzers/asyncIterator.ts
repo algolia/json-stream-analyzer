@@ -36,6 +36,7 @@ export class AsyncIteratorAnalyzer implements Analyzer {
       return;
     }
 
+    this.browsing = true;
     let completed = false;
     while (this.browsing && !completed) {
       const { value, done } = await this.browser.next();
@@ -56,7 +57,6 @@ export class AsyncIteratorAnalyzer implements Analyzer {
 
   public start = (browserParams?: any): Promise<void> => {
     this.browser = this.generator(browserParams);
-    this.browsing = true;
     this.model = null;
     this.processed = 0;
     return this.computeSchema();
@@ -67,7 +67,6 @@ export class AsyncIteratorAnalyzer implements Analyzer {
   };
 
   public resume = () => {
-    this.browsing = true;
     this.computeSchema();
   };
 
