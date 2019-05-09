@@ -21,11 +21,11 @@
   },
   "scripts": {
     "test": "yarn lint && jest",
-    "build": "tsc",
-    "lint": "eslint --ext .ts .",
+    "build": "yarn clean && tsc",
+    "lint": "eslint --ext .ts src/",
     "lint:fix": "yarn lint -- --fix",
     "clean": "rm -rf dist/",
-    "pre-release": "yarn test && yarn build && npm publish --dist dist --access restricted --dry-run",
+    "pre-release": "yarn test && yarn build && cp package.json dist/ && npm publish --dist dist --access restricted --dry-run",
     "re-link": "cd dist && yarn unlink && yarn link && cd .. && yarn link json-stream-analyzer",
     "pre-release-test": "yarn pre-release && yarn re-link && jest --config jest.pre-release.config.js",
     "release": "yarn pre-release-test && yarn version && yarn publish --dist dist --access restricted"
