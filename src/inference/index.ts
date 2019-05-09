@@ -71,6 +71,10 @@ export class SchemaType {
    * If the 2 models are of the same type, we can safely merge them together,
    * otherwise we combine them into a UnionType
    *
+   * Important: If you override this method to have a more specific combination
+   * behaviour, it **MUST** first check that the types are identical, and combine
+   * the two different SchemaTypes into a UnionType if they are not.
+   *
    * @param {SchemaType} other - the schema to combine it with
    * @param {number} counter - the number of times the other schema was seen
    * @returns {SchemaType} a SchemaType that is the combination of both models
