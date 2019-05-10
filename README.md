@@ -6,6 +6,97 @@ A library to analyze JSON streams and find structural issues in the stream's sch
 
 This tool is currently designed for internal use only. There is no guarantee on maintenance, or stability, of the API of the tool. It may change at any point, without warning, and without following proper semver.
 
+## Standard usage
+
+```js
+import SyncAnalyzer from '@algolia/json-stream-analyzer';
+// or import { SyncAnalyzer } from '@algolia/json-stream-analyzer/analyzers'
+// or const { SyncAnalyzer } = require('@algolia/json-stream-analyzer/analyzers')
+
+const analyzer = new SyncAnalyzer({
+  tag: objectToAnalyze => objectToAnalyze.id,
+});
+
+analyzer.pushToModel([
+  {
+    id: 1,
+    title: 'How to build a performant library?',
+    prices: {
+      hardcover: 52,
+      ebook: 10,
+    },
+  },
+  {
+    id: 3,
+    title: 'Mastering the art of example in 12 steps',
+    description:
+      'The description and prices.hardcover fields are missing in some records and prices.ebook has multiple types',
+    prices: {
+      ebook: '10$',
+    },
+  },
+]);
+
+const analysis = analyzer.diagnose();
+/*
+ * analysis:
+ * {
+ *   processed: { count: 2 },
+ *   issues: [
+ *     {
+ *       path: ['description'],
+ *       issues: [
+ *         {
+ *           id: 'missing',
+ *           title: 'Missing Data',
+ *           type: 'Union',
+ *           path: ['description'],
+ *           affected: 1,
+ *           marker: '1',
+ *         },
+ *       ],
+ *       nbIssues: 1,
+ *       totalAffected: 1,
+ *       total: 2,
+ *     },
+ *     {
+ *       path: ['prices', 'hardcover'],
+ *       issues: [
+ *         {
+ *           id: 'missing',
+ *           title: 'Missing Data',
+ *           type: 'Union',
+ *           path: ['prices', 'hardcover'],
+ *           affected: 1,
+ *           marker: '2',
+ *         },
+ *       ],
+ *       nbIssues: 1,
+ *       totalAffected: 1,
+ *       total: 2,
+ *     },
+ *     {
+ *       path: ['prices', 'ebook'],
+ *       issues: [
+ *         {
+ *           id: 'inconsistentType',
+ *           title: 'Inconsistent Type (String instead of Number)',
+ *           type: 'Union',
+ *           path: ['prices', 'ebook'],
+ *           affected: 1,
+ *           marker: '2',
+ *         },
+ *       ],
+ *       nbIssues: 1,
+ *       totalAffected: 1,
+ *       total: 2,
+ *     },
+ *   ],
+ *   model: {...}
+ * }
+ */
+```
+
 ## What's in the box
 
 This library converts provides different tools to help you analyze a stream of JSON data, decomposed into four different packages:
