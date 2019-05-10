@@ -409,7 +409,7 @@ The `UnionType` in this model will therefore have a different marker for each ty
 
 #### `asList`
 
-Once you have a model, it is generally easier to process it if it is the form of a list of JSON paths, with some statistics associated with each path. This conversion removes "dumb paths" that have a simple type, and focuses on `ArrayType`, `ObjectType` and `UnionType`.
+Once you have a model, it is generally easier to process it if it is in the form of a list of JSON paths, with some statistics associated with each path. This conversion removes "dumb paths" that have a simple type, and focuses on `ArrayType`, `ObjectType` and `UnionType`.
 
 To convert a model into a list of PathStatistics, just call `model.asList()`.
 
