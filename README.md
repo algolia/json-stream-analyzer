@@ -99,7 +99,7 @@ const analysis = analyzer.diagnose();
 
 ## What's in the box
 
-This library converts provides different tools to help you analyze a stream of JSON data, decomposed into four different packages:
+This library provides different tools to help you analyze a stream of JSON data, decomposed into four different packages:
 
 - **inference**: A set of tools to convert any arbitrary JSON element into a type model of that element, as well as combine these models into a single one, which is the model of the stream.
 - **diagnostics**: A set of tools to identify potential issues within a model. There can be false positives in the diagnostics.
