@@ -110,7 +110,7 @@ This library provides different tools to help you analyze a stream of JSON data,
 
 #### `convertToSchema`
 
-The inference sub-library exposes a core function called `convertToSchema` which converts a JSON element into it's type model.
+The inference sub-library exposes a core function called `convertToSchema` which converts a JSON element into its type model.
 The type models are represented by the `SchemaType` class and its descendants:
 
 - **StringType**
