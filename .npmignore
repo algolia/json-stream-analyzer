@@ -1,0 +1,11 @@
+.vscode/
+src/
+tests/
+
+.eslintrc.json
+.gitignore
+.prettierrc
+
+jest.config.js
+jest.pre-release.config.js
+tsconfig.json
