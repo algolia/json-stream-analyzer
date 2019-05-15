@@ -28,7 +28,7 @@
     "pre-release": "yarn test && yarn build && cp package.json dist/ && npm publish --dry-run dist",
     "re-link": "cd dist && (yarn unlink || echo 'no package to unlink') && yarn link && cd .. && yarn link @algolia/json-stream-analyzer",
     "pre-release-test": "yarn pre-release && yarn re-link && jest --config jest.pre-release.config.js",
-    "release": "(npm whoami || echo 'this command must be run from npm and not yarn') && yarn pre-release-test && yarn version && cp package.json dist/ && npm publish dist"
+    "release": "(npm whoami || echo 'this command must be run from npm and not yarn') && yarn pre-release-test && yarn version && cp package.json dist/ && npm publish dist && git push origin master"
   },
   "engines": {
     "node": ">=10.0.0"
