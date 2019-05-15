@@ -177,7 +177,7 @@ describe('diagnose', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('markers are stable', () => {
+  it('markers are right-stable', () => {
     const model = createModel([
       { id: 12, opt: 13 },
       { id: 1 },
@@ -201,5 +201,103 @@ describe('diagnose', () => {
     const actual = diagnose(model.asList());
 
     expect(actual).toEqual(expected);
+  });
+
+  it('markers are left-stable', () => {
+    const model1 = createModel([{ id: 16 }]);
+
+    const model2 = createModel([
+      { id: 12, opt: 13 },
+      { id: 1 },
+      { id: 16 },
+      { id: 42, opt: 43 },
+      { id: 22, opt: 103 },
+      { id: 19 },
+    ]);
+
+    const expected: Diagnostic[] = [
+      {
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['opt'],
+        affected: 4,
+        marker: '16',
+      },
+    ];
+
+    const model = model1.combine(model2);
+
+    const actual = diagnose(model.asList());
+
+    expect(actual).toEqual(expected);
+  });
+
+  it('can find all issues with a specific record when compared to a schema', () => {
+    const model1 = createModel([{ id: 16, type: 'string', ok: true }]);
+
+    const model2 = createModel([
+      { id: 12, opt: 13, type: 123, ok: true },
+      { id: 1, type: 234, ok: true },
+      { id: 16, type: 'string', ok: true },
+      { id: 42, opt: 43, type: 432, ok: null },
+      { id: 22, opt: 103, ok: true },
+      { id: 19, ok: true },
+    ]);
+
+    const expected: Diagnostic[] = [
+      {
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['opt'],
+        affected: 4,
+        marker: '16',
+      },
+      {
+        id: 'inconsistentType',
+        title: 'Inconsistent Type (String instead of Number)',
+        type: 'Union',
+        path: ['type'],
+        affected: 2,
+        marker: '16',
+      },
+    ];
+
+    const model = model1.combine(model2);
+
+    const actual = diagnose(model.asList()).filter(
+      ({ marker }) => marker === '16'
+    );
+
+    expect(actual).toEqual(expected);
+  });
+
+  it('left combine preserves right operand model', () => {
+    const model1 = createModel([{ id: 16, type: 'string', ok: true }]);
+
+    const model2 = createModel([
+      { id: 12, opt: 13, type: 123, ok: true },
+      { id: 1, type: 234, ok: true },
+      { id: 16, type: 'string', ok: true },
+      { id: 42, opt: 43, type: 432, ok: null },
+      { id: 22, opt: 103, ok: true },
+      { id: 19, ok: true },
+    ]);
+
+    const expected = createModel([
+      { id: 12, opt: 13, type: 123, ok: true },
+      { id: 1, type: 234, ok: true },
+      { id: 16, type: 'string', ok: true },
+      { id: 42, opt: 43, type: 432, ok: null },
+      { id: 22, opt: 103, ok: true },
+      { id: 19, ok: true },
+    ]);
+
+    model1.combine(model2);
+
+    expect(JSON.parse(JSON.stringify(model2))).toEqual(
+      JSON.parse(JSON.stringify(expected))
+    );
   });
 });

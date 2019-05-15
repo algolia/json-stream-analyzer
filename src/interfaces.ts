@@ -1,5 +1,4 @@
 import { SchemaType, SchemaTypeID } from './inference';
-export * from './inference';
 
 export type DiagnosticID =
   | 'missing'

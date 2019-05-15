@@ -280,8 +280,8 @@ export class ObjectType extends SchemaType {
         if (!this.schema[key]) {
           const missing = new MissingType(this.counter, this.marker);
           partial[key] = new UnionType()
-            .combine(schema, counter)
-            .combine(missing, counter);
+            .combine(missing, counter)
+            .combine(schema, counter);
         } else {
           partial[key] = this.schema[key].combine(schema, counter);
         }

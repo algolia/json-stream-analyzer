@@ -1,5 +1,5 @@
-import { SyncAnalyzer } from './sync';
+import { SyncAnalyzer as _SyncAnalyzer } from './sync';
 
 export { AsyncIteratorAnalyzer } from './asyncIterator';
-export { SyncAnalyzer } from './sync';
+export const SyncAnalyzer = _SyncAnalyzer;
 export default SyncAnalyzer;

@@ -1,12 +1,11 @@
 import {
-  SchemaType,
   Analysis,
   Diagnostic,
   PathDiagnosticAggregate,
   Analyzer,
 } from '../interfaces';
 
-import convertToSchema from '../inference';
+import convertToSchema, { SchemaType } from '../inference';
 import diagnose from '../diagnostics';
 import { aggregateByPath } from '../aggregation';
 
