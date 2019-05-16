@@ -11,17 +11,26 @@ import { aggregateByPath } from '../aggregation';
 
 interface SyncAnalyzerOptions {
   tag: (value: any) => string;
+  dismiss?: (diagnostic: Diagnostic) => boolean;
+  sortBy?: (a: PathDiagnosticAggregate, b: PathDiagnosticAggregate) => number;
 }
 
 export class SyncAnalyzer implements Analyzer {
   private tag: (value: any) => string;
+  public dismiss: (diagnostic: Diagnostic) => boolean;
   private model: SchemaType | null;
   private processed: number;
+  public sortBy: (
+    a: PathDiagnosticAggregate,
+    b: PathDiagnosticAggregate
+  ) => number;
 
-  public constructor({ tag }: SyncAnalyzerOptions) {
+  public constructor({ tag, dismiss, sortBy }: SyncAnalyzerOptions) {
     this.tag = tag;
     this.model = null;
     this.processed = 0;
+    this.dismiss = dismiss || (() => false);
+    this.sortBy = sortBy || ((a, b) => b.totalAffected - a.totalAffected);
   }
 
   public pushToModel = (inputs: any[]) => {
@@ -49,23 +58,54 @@ export class SyncAnalyzer implements Analyzer {
           count: 0,
         },
         issues: [],
+        dismissed: [],
         model: new SchemaType(0),
       };
     }
 
     const diagnostics: Diagnostic[] = diagnose(this.model.asList());
+    const groupedDiagnostic = diagnostics.reduce(
+      (
+        {
+          tracked,
+          dismissed,
+        }: { tracked: Diagnostic[]; dismissed: Diagnostic[] },
+        diagnostic
+      ) => {
+        if (this.dismiss(diagnostic)) {
+          return {
+            tracked,
+            dismissed: [...dismissed, diagnostic],
+          };
+        }
+
+        return {
+          tracked: [...tracked, diagnostic],
+          dismissed,
+        };
+      },
+      { tracked: [], dismissed: [] }
+    );
+
     const issues: PathDiagnosticAggregate[] = aggregateByPath(
-      diagnostics,
+      groupedDiagnostic.tracked,
       this.model
     );
 
-    issues.sort(({ totalAffected: a }, { totalAffected: b }) => b - a);
+    const dismissed: PathDiagnosticAggregate[] = aggregateByPath(
+      groupedDiagnostic.dismissed,
+      this.model
+    );
+
+    issues.sort(this.sortBy);
+    dismissed.sort(this.sortBy);
 
     return {
       processed: {
         count: this.processed,
       },
       issues,
+      dismissed,
       model: this.model,
     };
   };
