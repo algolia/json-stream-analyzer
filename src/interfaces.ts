@@ -29,6 +29,7 @@ export interface Analysis {
     count: number;
   };
   issues: PathDiagnosticAggregate[];
+  dismissed: PathDiagnosticAggregate[];
   model: SchemaType;
 }
 

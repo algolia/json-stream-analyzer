@@ -76,6 +76,7 @@ export class AsyncIteratorAnalyzer implements Analyzer {
           count: 0,
         },
         issues: [],
+        dismissed: [],
         model: new SchemaType(0),
       };
     }
@@ -93,6 +94,7 @@ export class AsyncIteratorAnalyzer implements Analyzer {
         count: this.processed,
       },
       issues,
+      dismissed: [],
       model: this.model,
     };
   };
