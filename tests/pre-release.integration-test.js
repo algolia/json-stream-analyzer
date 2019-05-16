@@ -140,4 +140,113 @@ describe('library behaviour', () => {
     expect(actual.processed).toEqual(expected.processed);
     expect(actual.issues).toEqual(expected.issues);
   });
+
+  it('builds expected analysis with dismissed issues', () => {
+    const { SyncAnalyzer } = library.analyzers;
+    const analyzer = new SyncAnalyzer({
+      tag: ({ id }) => `${id}`,
+      dismiss: diagnostic => {
+        // dismiss all missing data diagnostics
+        return diagnostic.id === 'missing';
+      },
+    });
+
+    const inputs = [
+      { id: 1, optDesc: 'some optional description' },
+      {
+        id: 2,
+        optArray: [
+          {
+            description:
+              'an array that can be empty or missing, and so can this description',
+            value: 12,
+          },
+        ],
+      },
+      { id: 3, optArray: [] },
+      { id: 4, optArray: [{ value: 42 }] },
+    ];
+
+    analyzer.pushToModel(inputs);
+
+    const expected = {
+      processed: { count: 4 },
+      issues: [
+        {
+          path: ['optArray'],
+          issues: [
+            {
+              id: 'emptyArray',
+              title: 'Empty Array',
+              type: 'Array',
+              path: ['optArray', '(Array)'],
+              affected: 1,
+              marker: '3',
+            },
+          ],
+          nbIssues: 1,
+          totalAffected: 1,
+          // this went from 4 to 3 when dismissing other issues.
+          // TODO: We should investigate why
+          total: 3,
+        },
+      ],
+      dismissed: [
+        {
+          path: ['optDesc'],
+          issues: [
+            {
+              id: 'missing',
+              title: 'Missing Data',
+              type: 'Union',
+              path: ['optDesc'],
+              affected: 3,
+              marker: '2',
+            },
+          ],
+          nbIssues: 1,
+          totalAffected: 3,
+          total: 4,
+        },
+        {
+          path: ['optArray'],
+          issues: [
+            {
+              id: 'missing',
+              title: 'Missing Data',
+              type: 'Union',
+              path: ['optArray'],
+              affected: 1,
+              marker: '1',
+            },
+          ],
+          nbIssues: 1,
+          totalAffected: 1,
+          total: 4,
+        },
+        {
+          path: ['optArray', '[]', 'description'],
+          issues: [
+            {
+              id: 'missing',
+              title: 'Missing Data',
+              type: 'Union',
+              path: ['optArray', '(Array)', '[Object]', 'description'],
+              affected: 1,
+              marker: '4',
+            },
+          ],
+          nbIssues: 1,
+          totalAffected: 1,
+          total: 2,
+        },
+      ],
+    };
+
+    const actual = analyzer.diagnose();
+
+    expect(actual.processed).toEqual(expected.processed);
+    expect(actual.issues).toEqual(expected.issues);
+    expect(actual.dismissed).toEqual(expected.dismissed);
+  });
 });
