@@ -3,7 +3,7 @@
     "outDir": "dist",
     "lib": ["es2017", "esnext.asynciterable"],
     "sourceMap": true,
-    "target": "es2015",
+    "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
