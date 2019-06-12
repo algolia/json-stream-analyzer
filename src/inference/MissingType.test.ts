@@ -23,10 +23,10 @@ describe('MissingType simple test case', () => {
       expect(b1.counter).toEqual(1);
     });
 
-    it('has a marker', () => {
-      const b1 = new MissingType({ counter: 1, marker: 'someMarker' });
+    it('has a tag', () => {
+      const b1 = new MissingType({ counter: 1, tag: 'someTag' });
 
-      expect(b1.marker).toEqual('someMarker');
+      expect(b1.tag).toEqual('someTag');
     });
   });
 

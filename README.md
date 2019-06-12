@@ -52,7 +52,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['description'],
  *           affected: 1,
- *           marker: '1',
+ *           tag: '1',
  *         },
  *       ],
  *       nbIssues: 1,
@@ -68,7 +68,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['prices', 'hardcover'],
  *           affected: 1,
- *           marker: '2',
+ *           tag: '2',
  *         },
  *       ],
  *       nbIssues: 1,
@@ -84,7 +84,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['prices', 'ebook'],
  *           affected: 1,
- *           marker: '2',
+ *           tag: '2',
  *         },
  *       ],
  *       nbIssues: 1,
@@ -125,9 +125,9 @@ and two special descendants:
 - **UnionType**: This type represents the case where a JSON element can be of multiple types. These possible types are saved within the UnionType.
 - **MissingType**: This type represent the case where a JSON element can be missing from another structure, typically for optional attributes in a JSON Object. It is usually used in conjunction with UnionType.
 
-In addition to that, you can pass a `marker` to `convertToSchema` as a second argument. This marker can be anything you want, e.g. an IP address, an API Key, an ObjectID, etc. and will be stored in the model corresponding to JSON element that converted.
+In addition to that, you can pass a `tag` to `convertToSchema` as a second argument. This tag can be anything you want, e.g. an IP address, an API Key, an ObjectID, etc. and will be stored in the model corresponding to JSON element that converted.
 
-**Important:** Carefully choosing a `marker` for your JSON elements can help you find what is causing the discrepancies in your model, as this `marker` will be **partially** preserved during the analysis. (The partial preservation will be talked in depth in the [combine](./combine) section).
+**Important:** Carefully choosing a `tag` for your JSON elements can help you find what is causing the discrepancies in your model, as this `tag` will be **partially** preserved during the analysis. (The partial preservation will be talked in depth in the [combine](./combine) section).
 
 **Examples**:
 
@@ -181,7 +181,7 @@ model = convertToSchema(jsonObject);
  * }
  */
 
-// with marker
+// with tag
 const jsonObject = { title: 'some title', pageviews: 132 };
 model = convertToSchema(jsonObject, 'myObjectID');
 /**
@@ -189,17 +189,17 @@ model = convertToSchema(jsonObject, 'myObjectID');
  * {
  *   type: 'Object',
  *   counter: 1,
- *   marker: 'myObjectID',
+ *   tag: 'myObjectID',
  *   schema: {
  *     title: {
  *       type: 'String',
  *       counter: 1,
- *       marker: 'myObjectID',
+ *       tag: 'myObjectID',
  *     },
  *     pageviews: {
  *       type: 'Number',
  *       counter: 1,
- *       marker: 'myObjectID',
+ *       tag: 'myObjectID',
  *     }
  *   }
  * }
@@ -300,9 +300,9 @@ const combinedModel = model.combine(otherModel);
  */
 ```
 
-**Note:** `combine` is a partially destructive operation on `markers`, since we only keep one marker per node of the model. However, `combine` will still guarantee that you have at least one marker for each type that is present at each level in your model.
+**Note:** `combine` is a partially destructive operation on `tags`, since we only keep one tag per node of the model. However, `combine` will still guarantee that you have at least one tag for each type that is present at each level in your model.
 
-For instance, if we retake our previous example, but mark each record with a specific marker, we can identify **one** record for each parts of the model, and so we can have information on **one** of the records that have the description field, and **one** of the records that are missing it.
+For instance, if we retake our previous example, but mark each record with a specific tag, we can identify **one** record for each parts of the model, and so we can have information on **one** of the records that have the description field, and **one** of the records that are missing it.
 
 ```js
 const { convertToSchema } = require('@algolia/json-stream-analyzer/inference');
@@ -317,17 +317,17 @@ const model = convertToSchema(jsonObject, 'objectID1');
  * {
  *   type: 'Object',
  *   counter: 1,
- *   marker: 'objectID1',
+ *   tag: 'objectID1',
  *   schema: {
  *     title: {
  *       type: 'String',
  *       counter: 1,
- *       marker: 'objectID1',
+ *       tag: 'objectID1',
  *     },
  *     pageviews: {
  *       type: 'Number',
  *       counter: 1,
- *       marker: 'objectID1',
+ *       tag: 'objectID1',
  *     }
  *   }
  * }
@@ -344,22 +344,22 @@ const otherModel = convertToSchema(otherJsonObject, 'objectID2');
  * {
  *   type: 'Object',
  *   counter: 1,
- *   marker: 'objectID2',
+ *   tag: 'objectID2',
  *   schema: {
  *     title: {
  *       type: 'String',
  *       counter: 1,
- *       marker: 'objectID2',
+ *       tag: 'objectID2',
  *     },
  *     pageviews: {
  *       type: 'Number',
  *       counter: 1,
- *       marker: 'objectID2',
+ *       tag: 'objectID2',
  *     },
  *     description: {
  *       type: 'String',
  *       counter: 1,
- *       marker: 'objectID2',
+ *       tag: 'objectID2',
  *     }
  *   }
  * }
@@ -371,32 +371,32 @@ const combinedModel = model.combine(otherModel);
  * {
  *   type: 'Object',
  *   counter: 2,
- *   marker: 'objectID1',
+ *   tag: 'objectID1',
  *   schema: {
  *     title: {
  *       type: 'String',
  *       counter: 2,
- *       marker: 'objectID1',
+ *       tag: 'objectID1',
  *     },
  *     pageviews: {
  *       type: 'Number',
  *       counter: 2,
- *       marker: 'objectID1',
+ *       tag: 'objectID1',
  *     },
  *     description: {
  *       type: 'Union',
  *       counter: 2,
- *       marker: 'objectID2',
+ *       tag: 'objectID2',
  *       types: {
  *         Missing: {
  *           type: 'Missing',
  *           counter: 1,
- *           marker: 'objectID1',
+ *           tag: 'objectID1',
  *         }
  *         String: {
  *           type: 'String',
  *           counter: 1,
- *           marker: 'objectID2',
+ *           tag: 'objectID2',
  *         }
  *       }
  *     }
@@ -405,7 +405,7 @@ const combinedModel = model.combine(otherModel);
  */
 ```
 
-The `UnionType` in this model will therefore have a different marker for each type it encounters, giving you a means of investigating what caused the divergence, if you selected your marker carefully.
+The `UnionType` in this model will therefore have a different tag for each type it encounters, giving you a means of investigating what caused the divergence, if you selected your tag carefully.
 
 #### `asList`
 
@@ -700,7 +700,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['optDesc'],
  *           affected: 3,
- *           marker: '2',
+ *           tag: '2',
  *         },
  *       ],
  *       nbIssues: 1,
@@ -716,7 +716,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['optArray'],
  *           affected: 1,
- *           marker: '1',
+ *           tag: '1',
  *         },
  *         {
  *           id: 'emptyArray',
@@ -724,7 +724,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Array',
  *           path: ['optArray', '(Array)'],
  *           affected: 1,
- *           marker: '3',
+ *           tag: '3',
  *         },
  *       ],
  *       nbIssues: 2,
@@ -740,7 +740,7 @@ const analysis = analyzer.diagnose();
  *           type: 'Union',
  *           path: ['optArray', '(Array)', '[Object]', 'description'],
  *           affected: 1,
- *           marker: '4',
+ *           tag: '4',
  *         },
  *       ],
  *       nbIssues: 1,
