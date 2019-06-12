@@ -11,12 +11,12 @@ import { aggregateByPath } from '../aggregation';
 
 export interface AsyncIteratorAnalyzerOptions {
   generator: (params: any) => AsyncIterator<any>;
-  tag: (value: any) => string;
+  tag: (value: any) => any;
 }
 
 export class AsyncIteratorAnalyzer implements Analyzer {
   private generator: (params: any) => AsyncIterator<any>;
-  private tag: (value: any) => string;
+  private tag: (value: any) => any;
   private browser?: AsyncIterator<any>;
   private browsing: boolean;
   private model: SchemaType | null;

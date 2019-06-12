@@ -14,7 +14,7 @@ export type SchemaTypeID =
 export interface ComplexTypeStatistics {
   [key: string]: {
     counter: number;
-    marker?: string;
+    marker?: any;
   };
 }
 
@@ -48,7 +48,7 @@ export class SchemaType {
    * Note: In the model, we will only ever keep only one marker on every node of the
    * tree representation of the schema type
    */
-  public marker?: string;
+  public marker?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
@@ -57,7 +57,7 @@ export class SchemaType {
    */
   public counter: number;
 
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     this.counter = counter;
     this.marker = marker;
     this.type = 'unknownType';
@@ -101,7 +101,7 @@ export class SchemaType {
    * that may be used as a trace for analysis purposes
    * @returns {SchemaType} the corresponding SchemaType
    */
-  public convert = (content: any, marker?: string): SchemaType => {
+  public convert = (content: any, marker?: any): SchemaType => {
     if (typeof content === 'number') {
       return new NumberType(1, marker);
     }
@@ -177,35 +177,35 @@ export class SchemaType {
 }
 
 export class StringType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     super(counter, marker);
     this.type = 'String';
   }
 }
 
 export class BooleanType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     super(counter, marker);
     this.type = 'Boolean';
   }
 }
 
 export class NumberType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     super(counter, marker);
     this.type = 'Number';
   }
 }
 
 export class NullType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     super(counter, marker);
     this.type = 'Null';
   }
 }
 
 export class MissingType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
+  public constructor(counter = 1, marker?: any) {
     super(counter, marker);
     this.type = 'Missing';
   }
@@ -224,7 +224,7 @@ export class ObjectType extends SchemaType {
 
   public constructor(
     counter = 1,
-    marker?: string,
+    marker?: any,
     schema: { [key: string]: SchemaType } = {}
   ) {
     super(counter, marker);
@@ -358,7 +358,7 @@ export class ArrayType extends SchemaType {
 
   public constructor(
     counter = 1,
-    marker?: string,
+    marker?: any,
     types: { [type: string]: SchemaType } = {}
   ) {
     super(counter, marker);
