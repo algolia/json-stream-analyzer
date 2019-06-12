@@ -24,7 +24,7 @@ describe('NullType simple test case', () => {
     });
 
     it('has a marker', () => {
-      const b1 = new NullType(1, 'someMarker');
+      const b1 = new NullType({ counter: 1, marker: 'someMarker' });
 
       expect(b1.marker).toEqual('someMarker');
     });

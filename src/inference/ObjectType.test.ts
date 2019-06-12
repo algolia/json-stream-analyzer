@@ -24,7 +24,7 @@ describe('ObjectType simple test case', () => {
     });
 
     it('has a marker', () => {
-      const b1 = new ObjectType(1, 'someMarker');
+      const b1 = new ObjectType({ counter: 1, marker: 'someMarker' });
 
       expect(b1.marker).toEqual('someMarker');
     });
@@ -296,7 +296,6 @@ describe('ObjectType schema test case', () => {
       };
 
       const simplifiedSchema = JSON.parse(JSON.stringify(converted.schema));
-
       expect(simplifiedSchema).toEqual(expectedSchema);
     });
 

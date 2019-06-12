@@ -24,7 +24,7 @@ describe('ArrayType simple test case', () => {
     });
 
     it('has a marker', () => {
-      const b1 = new ArrayType(1, 'someMarker');
+      const b1 = new ArrayType({ counter: 1, marker: 'someMarker' });
 
       expect(b1.marker).toEqual('someMarker');
     });

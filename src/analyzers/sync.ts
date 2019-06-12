@@ -59,7 +59,7 @@ export class SyncAnalyzer implements Analyzer {
         },
         issues: [],
         dismissed: [],
-        model: new SchemaType(0),
+        model: new SchemaType({ counter: 0 }),
       };
     }
 

@@ -40,7 +40,7 @@ describe('Analyzer', () => {
         count: 0,
       },
       issues: [],
-      model: new SchemaType(0),
+      model: new SchemaType({ counter: 0 }),
     };
 
     await analyzer.start();

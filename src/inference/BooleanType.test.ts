@@ -24,7 +24,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('has a marker', () => {
-      const b1 = new BooleanType(1, 'someMarker');
+      const b1 = new BooleanType({ counter: 1, marker: 'someMarker' });
 
       expect(b1.marker).toEqual('someMarker');
     });
@@ -67,6 +67,29 @@ describe('BooleanType simple test case', () => {
 
       expect(combined.type).toEqual('Boolean');
       expect(combined.counter).toEqual(10);
+    });
+
+    it('combine uses combineMarker correctly', () => {
+      const booleans = new Array(10)
+        .fill(0)
+        .map((_, i) => new BooleanType({ marker: [i] }));
+
+      // keeps the first 5 markers
+      const combineMarker = (first: number[], second: number[]): number[] => {
+        if (first.length > 5) {
+          return first;
+        }
+
+        return [...first, ...second].slice(0, 5);
+      };
+
+      const combined = booleans.reduce((acc, booleanType) => {
+        return acc.combine(booleanType, { combineMarker });
+      });
+
+      expect(combined.type).toEqual('Boolean');
+      expect(combined.counter).toEqual(10);
+      expect(combined.marker).toEqual([0, 1, 2, 3, 4]);
     });
 
     it('can combine with NullType', () => {

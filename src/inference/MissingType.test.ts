@@ -24,7 +24,7 @@ describe('MissingType simple test case', () => {
     });
 
     it('has a marker', () => {
-      const b1 = new MissingType(1, 'someMarker');
+      const b1 = new MissingType({ counter: 1, marker: 'someMarker' });
 
       expect(b1.marker).toEqual('someMarker');
     });
