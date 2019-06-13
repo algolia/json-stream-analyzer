@@ -10,13 +10,13 @@ import diagnose from '../diagnostics';
 import { aggregateByPath } from '../aggregation';
 
 interface SyncAnalyzerOptions {
-  tag: (value: any) => string;
+  tag: (value: any) => any;
   dismiss?: (diagnostic: Diagnostic) => boolean;
   sortBy?: (a: PathDiagnosticAggregate, b: PathDiagnosticAggregate) => number;
 }
 
 export class SyncAnalyzer implements Analyzer {
-  private tag: (value: any) => string;
+  private tag: (value: any) => any;
   public dismiss: (diagnostic: Diagnostic) => boolean;
   private model: SchemaType | null;
   private processed: number;
@@ -59,7 +59,7 @@ export class SyncAnalyzer implements Analyzer {
         },
         issues: [],
         dismissed: [],
-        model: new SchemaType(0),
+        model: new SchemaType({ counter: 0 }),
       };
     }
 

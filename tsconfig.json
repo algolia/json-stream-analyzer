@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["es2017", "esnext.asynciterable"],
+    "lib": [
+      "es2017",
+      "esnext.asynciterable"
+    ],
     "sourceMap": true,
     "target": "es5",
     "module": "commonjs",
@@ -10,5 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true
   },
-  "exclude": ["**/*.test.ts"]
+  "exclude": [
+    "**/*.test.ts"
+  ]
 }

@@ -13,7 +13,7 @@ export interface Diagnostic {
   type: SchemaTypeID;
   path: string[];
   affected: number;
-  marker?: string;
+  tag?: any;
 }
 
 export interface PathDiagnosticAggregate {

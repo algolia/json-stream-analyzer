@@ -23,10 +23,10 @@ describe('BooleanType simple test case', () => {
       expect(b1.counter).toEqual(1);
     });
 
-    it('has a marker', () => {
-      const b1 = new BooleanType(1, 'someMarker');
+    it('has a tag', () => {
+      const b1 = new BooleanType({ counter: 1, tag: 'someTag' });
 
-      expect(b1.marker).toEqual('someMarker');
+      expect(b1.tag).toEqual('someTag');
     });
   });
 
@@ -67,6 +67,29 @@ describe('BooleanType simple test case', () => {
 
       expect(combined.type).toEqual('Boolean');
       expect(combined.counter).toEqual(10);
+    });
+
+    it('combine uses combineTag correctly', () => {
+      const booleans = new Array(10)
+        .fill(0)
+        .map((_, i) => new BooleanType({ tag: [i] }));
+
+      // keeps the first 5 tags
+      const combineTag = (first: number[], second: number[]): number[] => {
+        if (first.length > 5) {
+          return first;
+        }
+
+        return [...first, ...second].slice(0, 5);
+      };
+
+      const combined = booleans.reduce((acc, booleanType) => {
+        return acc.combine(booleanType, { combineTag });
+      });
+
+      expect(combined.type).toEqual('Boolean');
+      expect(combined.counter).toEqual(10);
+      expect(combined.tag).toEqual([0, 1, 2, 3, 4]);
     });
 
     it('can combine with NullType', () => {

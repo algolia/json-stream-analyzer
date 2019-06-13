@@ -23,10 +23,10 @@ describe('ArrayType simple test case', () => {
       expect(b1.counter).toEqual(1);
     });
 
-    it('has a marker', () => {
-      const b1 = new ArrayType(1, 'someMarker');
+    it('has a tag', () => {
+      const b1 = new ArrayType({ counter: 1, tag: 'someTag' });
 
-      expect(b1.marker).toEqual('someMarker');
+      expect(b1.tag).toEqual('someTag');
     });
   });
 

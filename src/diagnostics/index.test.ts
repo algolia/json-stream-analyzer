@@ -36,7 +36,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 1,
-        marker: '1',
+        tag: '1',
       },
     ];
 
@@ -59,7 +59,7 @@ describe('diagnose', () => {
         type: 'Array',
         path: ['opt'],
         affected: 1,
-        marker: '1',
+        tag: '1',
       },
     ];
 
@@ -83,7 +83,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 1,
-        marker: '1',
+        tag: '1',
       },
       {
         id: 'inconsistentType',
@@ -91,7 +91,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 1,
-        marker: '42',
+        tag: '42',
       },
     ];
 
@@ -114,7 +114,7 @@ describe('diagnose', () => {
         type: 'Array',
         path: ['opt'],
         affected: 3,
-        marker: '12',
+        tag: '12',
       },
     ];
 
@@ -137,7 +137,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 1,
-        marker: '16',
+        tag: '16',
       },
       {
         id: 'inconsistentType',
@@ -145,7 +145,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 1,
-        marker: '1',
+        tag: '1',
       },
     ];
 
@@ -168,7 +168,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['a', 'opt'],
         affected: 1,
-        marker: '1',
+        tag: '1',
       },
     ];
 
@@ -177,7 +177,7 @@ describe('diagnose', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('markers are right-stable', () => {
+  it('tags are right-stable', () => {
     const model = createModel([
       { id: 12, opt: 13 },
       { id: 1 },
@@ -194,7 +194,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 3,
-        marker: '1',
+        tag: '1',
       },
     ];
 
@@ -203,7 +203,7 @@ describe('diagnose', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('markers are left-stable', () => {
+  it('tags are left-stable', () => {
     const model1 = createModel([{ id: 16 }]);
 
     const model2 = createModel([
@@ -222,7 +222,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 4,
-        marker: '16',
+        tag: '16',
       },
     ];
 
@@ -252,7 +252,7 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['opt'],
         affected: 4,
-        marker: '16',
+        tag: '16',
       },
       {
         id: 'inconsistentType',
@@ -260,14 +260,14 @@ describe('diagnose', () => {
         type: 'Union',
         path: ['type'],
         affected: 2,
-        marker: '16',
+        tag: '16',
       },
     ];
 
     const model = model1.combine(model2);
 
     const actual = diagnose(model.asList()).filter(
-      ({ marker }) => marker === '16'
+      ({ tag }) => tag === '16'
     );
 
     expect(actual).toEqual(expected);

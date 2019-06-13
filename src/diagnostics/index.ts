@@ -19,7 +19,7 @@ export const diagnoseUnionWithMissing = ({
         type,
         path,
         affected: stats.Missing.counter,
-        marker: stats.Missing.marker,
+        tag: stats.Missing.tag,
       },
     ];
   }
@@ -45,7 +45,7 @@ export const diagnoseArrayWithMissing = ({
         type,
         path,
         affected: stats.Missing.counter,
-        marker: stats.Missing.marker,
+        tag: stats.Missing.tag,
       },
     ];
   }
@@ -102,7 +102,7 @@ export const diagnoseInconsistentUnionType = ({
           type,
           path,
           affected: value.counter,
-          marker: value.marker,
+          tag: value.tag,
         };
       });
 
@@ -129,9 +129,9 @@ export const diagnoseInconsistentArrayType = ({
   }
 
   if (isMultiType(Object.keys(stats))) {
-    const possibleMarker = Object.entries(stats).filter(
+    const possibleTag = Object.entries(stats).filter(
       ([key]) => key !== 'Missing'
-    )[0][1].marker;
+    )[0][1].tag;
 
     const diagnostic: Diagnostic = {
       id: 'polymorphicArray',
@@ -139,7 +139,7 @@ export const diagnoseInconsistentArrayType = ({
       type,
       path,
       affected: total,
-      marker: possibleMarker,
+      tag: possibleTag,
     };
 
     return [diagnostic];
@@ -182,7 +182,7 @@ export const diagnoseNumericalKeysOnObject = ({
     path,
     // we can't know for sure how many records are affected, but there's at least that amount that is affected
     affected: largestNumericalKey.counter,
-    marker: largestNumericalKey.marker,
+    tag: largestNumericalKey.tag,
   };
 
   return [diagnostic];

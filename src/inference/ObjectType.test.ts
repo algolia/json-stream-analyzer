@@ -23,10 +23,10 @@ describe('ObjectType simple test case', () => {
       expect(b1.counter).toEqual(1);
     });
 
-    it('has a marker', () => {
-      const b1 = new ObjectType(1, 'someMarker');
+    it('has a tag', () => {
+      const b1 = new ObjectType({ counter: 1, tag: 'someTag' });
 
-      expect(b1.marker).toEqual('someMarker');
+      expect(b1.tag).toEqual('someTag');
     });
   });
 
@@ -221,12 +221,12 @@ describe('ObjectType schema test case', () => {
         someNums: {
           type: 'Array',
           counter: 2,
-          marker: 'm1',
+          tag: 'm1',
           types: {
             Number: {
               type: 'Number',
               counter: 2,
-              marker: 'm1',
+              tag: 'm1',
             },
           },
         },
@@ -237,29 +237,29 @@ describe('ObjectType schema test case', () => {
             Missing: {
               type: 'Missing',
               counter: 1,
-              marker: 'm2',
+              tag: 'm2',
             },
             Boolean: {
               type: 'Boolean',
               counter: 1,
-              marker: 'm1',
+              tag: 'm1',
             },
           },
         },
         nested: {
           type: 'Object',
           counter: 2,
-          marker: 'm1',
+          tag: 'm1',
           schema: {
             nullable: {
               type: 'Null',
               counter: 2,
-              marker: 'm1',
+              tag: 'm1',
             },
             pattern: {
               type: 'String',
               counter: 2,
-              marker: 'm1',
+              tag: 'm1',
             },
           },
         },
@@ -270,22 +270,22 @@ describe('ObjectType schema test case', () => {
             Missing: {
               type: 'Missing',
               counter: 1,
-              marker: 'm1',
+              tag: 'm1',
             },
             Object: {
               type: 'Object',
               counter: 1,
-              marker: 'm2',
+              tag: 'm2',
               schema: {
                 tests: {
                   type: 'Array',
                   counter: 1,
-                  marker: 'm2',
+                  tag: 'm2',
                   types: {
                     Boolean: {
                       type: 'Boolean',
                       counter: 1,
-                      marker: 'm2',
+                      tag: 'm2',
                     },
                   },
                 },
@@ -296,7 +296,6 @@ describe('ObjectType schema test case', () => {
       };
 
       const simplifiedSchema = JSON.parse(JSON.stringify(converted.schema));
-
       expect(simplifiedSchema).toEqual(expectedSchema);
     });
 

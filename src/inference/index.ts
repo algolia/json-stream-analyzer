@@ -14,7 +14,7 @@ export type SchemaTypeID =
 export interface ComplexTypeStatistics {
   [key: string]: {
     counter: number;
-    marker?: string;
+    tag?: any;
   };
 }
 
@@ -29,6 +29,20 @@ interface SchemaObject {
   [key: string]: SchemaType;
 }
 
+type TagCombiner = (thisTag: any, otherTag?: any) => any;
+
+interface CombineOptions {
+  counter?: number;
+  combineTag: TagCombiner;
+}
+
+const keepFirst: TagCombiner = thisTag => thisTag;
+
+interface SchemaTypeParams {
+  counter?: number;
+  tag?: any;
+}
+
 export class SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
@@ -38,17 +52,17 @@ export class SchemaType {
 
   /**
    * A user-defined identifier that is used to label every node of the schema.
-   * In the context of an Algolia Record, the objectID could be used as a marker.
+   * In the context of an Algolia Record, the objectID could be used as a tag.
    *
-   * The markers are useless during the conversion of a JSON object but can be very
+   * The tags are useless during the conversion of a JSON object but can be very
    * useful during the combination of the models, as models that are different can
-   * then show different markers, which the user can then use to find what caused
+   * then show different tags, which the user can then use to find what caused
    * the difference.
    *
-   * Note: In the model, we will only ever keep only one marker on every node of the
+   * Note: In the model, we will only ever keep only one tag on every node of the
    * tree representation of the schema type
    */
-  public marker?: string;
+  public tag?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
@@ -57,9 +71,11 @@ export class SchemaType {
    */
   public counter: number;
 
-  public constructor(counter = 1, marker?: string) {
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
     this.counter = counter;
-    this.marker = marker;
+    this.tag = tag;
     this.type = 'unknownType';
   }
 
@@ -77,57 +93,68 @@ export class SchemaType {
    *
    * @param {SchemaType} other - the schema to combine it with
    * @param {number} counter - the number of times the other schema was seen
+   * @param {TagCombiner} combineTag - a method used
+   * to combine tags together. If unset, it uses a keep-first strategy.
    * @returns {SchemaType} a SchemaType that is the combination of both models
    */
-  public combine = (other: SchemaType, counter?: number) => {
+  public combine = (
+    other: SchemaType,
+    { counter, combineTag = keepFirst }: CombineOptions = {
+      combineTag: keepFirst,
+    }
+  ) => {
     if (other.type === this.type) {
       // @ts-ignore ts(2351)
-      const result = new other.constructor(
-        counter || this.counter + other.counter,
-        this.marker
-      );
+      const result = new other.constructor({
+        counter: counter || this.counter + other.counter,
+        tag: combineTag(this.tag, other.tag),
+      });
       return result;
     }
 
     const union = new UnionType();
-    return union.combine(this, counter).combine(other, counter);
+    return union
+      .combine(this, { counter, combineTag })
+      .combine(other, { counter, combineTag });
   };
 
   /**
    * transforms a JSON element into a SchemaType
    *
    * @param {any} content - the element to transform into a SchemaType
-   * @param {string} marker - a user-defined identifier for that element
+   * @param {string} tag - a user-defined identifier for that element
    * that may be used as a trace for analysis purposes
    * @returns {SchemaType} the corresponding SchemaType
    */
-  public convert = (content: any, marker?: string): SchemaType => {
+  public convert = (content: any, tag?: any): SchemaType => {
     if (typeof content === 'number') {
-      return new NumberType(1, marker);
+      return new NumberType({ counter: 1, tag });
     }
 
     if (typeof content === 'boolean') {
-      return new BooleanType(1, marker);
+      return new BooleanType({ counter: 1, tag });
     }
 
     if (typeof content === 'string') {
-      return new StringType(1, marker);
+      return new StringType({ counter: 1, tag });
     }
 
     if (content === null) {
-      return new NullType(1, marker);
+      return new NullType({ counter: 1, tag });
     }
 
     if (Array.isArray(content)) {
       let types;
 
       if (!content.length) {
-        types = { Missing: new MissingType(1, marker) };
+        types = { Missing: new MissingType({ counter: 1, tag }) };
       } else {
         types = content.reduce((partial, item) => {
-          const schema = this.convert(item, marker);
+          const schema = this.convert(item, tag);
           if (partial[schema.type]) {
-            partial[schema.type] = partial[schema.type].combine(schema, 1);
+            partial[schema.type] = partial[schema.type].combine(schema, {
+              counter: 1,
+            });
           } else {
             partial[schema.type] = schema;
           }
@@ -135,17 +162,17 @@ export class SchemaType {
           return partial;
         }, {});
       }
-      return new ArrayType(1, marker, types);
+      return new ArrayType({ counter: 1, tag }, types);
     }
 
     const schema: SchemaObject = Object.entries(content).reduce(
       (schemas: SchemaObject, [key, subContent]) => {
-        schemas[key] = this.convert(subContent, marker);
+        schemas[key] = this.convert(subContent, tag);
         return schemas;
       },
       {}
     );
-    return new ObjectType(1, marker, schema);
+    return new ObjectType({ counter: 1, tag }, schema);
   };
 
   /**
@@ -157,7 +184,7 @@ export class SchemaType {
    */
   public copy = () => {
     // @ts-ignore ts(2351)
-    return new this.constructor(this.counter, this.marker);
+    return new this.constructor({ counter: this.counter, tag: this.tag });
   };
 
   /**
@@ -177,36 +204,46 @@ export class SchemaType {
 }
 
 export class StringType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
-    super(counter, marker);
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
+    super({ counter, tag });
     this.type = 'String';
   }
 }
 
 export class BooleanType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
-    super(counter, marker);
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
+    super({ counter, tag });
     this.type = 'Boolean';
   }
 }
 
 export class NumberType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
-    super(counter, marker);
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
+    super({ counter, tag });
     this.type = 'Number';
   }
 }
 
 export class NullType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
-    super(counter, marker);
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
+    super({ counter, tag });
     this.type = 'Null';
   }
 }
 
 export class MissingType extends SchemaType {
-  public constructor(counter = 1, marker?: string) {
-    super(counter, marker);
+  public constructor(
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 }
+  ) {
+    super({ counter, tag });
     this.type = 'Missing';
   }
 }
@@ -223,11 +260,10 @@ export class ObjectType extends SchemaType {
   public schema: SchemaObject;
 
   public constructor(
-    counter = 1,
-    marker?: string,
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 },
     schema: { [key: string]: SchemaType } = {}
   ) {
-    super(counter, marker);
+    super({ counter, tag });
     this.type = 'Object';
     this.schema = schema;
   }
@@ -246,7 +282,10 @@ export class ObjectType extends SchemaType {
    * @returns {ObjectType} the copy
    */
   public copy = (): ObjectType => {
-    const result = new ObjectType(this.counter, this.marker);
+    const result = new ObjectType({
+      counter: this.counter,
+      tag: this.tag,
+    });
     result.schema = Object.entries(this.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
         partial[key] = schema.copy();
@@ -260,10 +299,14 @@ export class ObjectType extends SchemaType {
 
   public combine = (
     other: SchemaType,
-    counter?: number
+    { counter, combineTag = keepFirst }: CombineOptions = {
+      combineTag: keepFirst,
+    }
   ): UnionType | ObjectType => {
     if (!this.isSameType(other)) {
-      return new UnionType().combine(this, counter).combine(other, counter);
+      return new UnionType()
+        .combine(this, { counter, combineTag })
+        .combine(other, { counter, combineTag });
     }
 
     /**
@@ -273,17 +316,23 @@ export class ObjectType extends SchemaType {
      * In the case where the attribute exists in both schemas, we need to combine
      * both of its model into one first. Otherwise, we need to combine the unique
      * model we found with a MissingType model of the correct size (counter) and
-     * identifier (marker)
+     * identifier (tag)
      */
     let combinedSchema = Object.entries(other.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
         if (!this.schema[key]) {
-          const missing = new MissingType(this.counter, this.marker);
+          const missing = new MissingType({
+            counter: this.counter,
+            tag: this.tag,
+          });
           partial[key] = new UnionType()
-            .combine(missing, counter)
-            .combine(schema, counter);
+            .combine(missing, { counter, combineTag })
+            .combine(schema, { counter, combineTag });
         } else {
-          partial[key] = this.schema[key].combine(schema, counter);
+          partial[key] = this.schema[key].combine(schema, {
+            counter,
+            combineTag,
+          });
         }
 
         return partial;
@@ -294,10 +343,13 @@ export class ObjectType extends SchemaType {
     combinedSchema = Object.entries(this.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
         if (!other.schema[key]) {
-          const missing = new MissingType(other.counter, other.marker);
+          const missing = new MissingType({
+            counter: other.counter,
+            tag: other.tag,
+          });
           partial[key] = new UnionType()
-            .combine(schema, counter)
-            .combine(missing, counter);
+            .combine(schema, { counter, combineTag })
+            .combine(missing, { counter, combineTag });
         }
 
         return partial;
@@ -307,7 +359,13 @@ export class ObjectType extends SchemaType {
 
     const combinedCounter = counter || this.counter + other.counter;
     // @ts-ignore ts(2351)
-    return new this.constructor(combinedCounter, this.marker, combinedSchema);
+    return new this.constructor(
+      {
+        counter: combinedCounter,
+        tag: combineTag(this.tag, other.tag),
+      },
+      combinedSchema
+    );
   };
 
   /**
@@ -328,7 +386,7 @@ export class ObjectType extends SchemaType {
       (partial, [key, value]) => {
         return {
           ...partial,
-          [key]: { counter: value.counter, marker: value.marker },
+          [key]: { counter: value.counter, tag: value.tag },
         };
       },
       {}
@@ -357,11 +415,10 @@ export class ArrayType extends SchemaType {
   public types: SchemaObject;
 
   public constructor(
-    counter = 1,
-    marker?: string,
+    { counter = 1, tag }: SchemaTypeParams = { counter: 1 },
     types: { [type: string]: SchemaType } = {}
   ) {
-    super(counter, marker);
+    super({ counter, tag });
     this.type = 'Array';
     this.types = types;
   }
@@ -380,7 +437,10 @@ export class ArrayType extends SchemaType {
    * @returns {ArrayType} the copy
    */
   public copy = (): ArrayType => {
-    const result = new ArrayType(this.counter, this.marker);
+    const result = new ArrayType({
+      counter: this.counter,
+      tag: this.tag,
+    });
     result.types = Object.entries(this.types).reduce(
       (partial: SchemaObject, [key, schema]) => {
         partial[key] = schema.copy();
@@ -394,10 +454,14 @@ export class ArrayType extends SchemaType {
 
   public combine = (
     other: SchemaType,
-    counter?: number
+    { counter, combineTag = keepFirst }: CombineOptions = {
+      combineTag: keepFirst,
+    }
   ): UnionType | ArrayType => {
     if (!this.isSameType(other)) {
-      return new UnionType().combine(this, counter).combine(other, counter);
+      return new UnionType()
+        .combine(this, { counter, combineTag })
+        .combine(other, { counter, combineTag });
     }
 
     /**
@@ -419,7 +483,10 @@ export class ArrayType extends SchemaType {
     combinedTypes = Object.entries(other.types).reduce(
       (partial: SchemaObject, [type, schema]) => {
         if (partial[type]) {
-          partial[type] = partial[type].combine(schema, counter);
+          partial[type] = partial[type].combine(schema, {
+            counter,
+            combineTag,
+          });
         } else {
           partial[type] = schema.copy();
         }
@@ -431,7 +498,13 @@ export class ArrayType extends SchemaType {
 
     const combinedCounter = counter || this.counter + other.counter;
     // @ts-ignore ts(2351)
-    return new this.constructor(combinedCounter, this.marker, combinedTypes);
+    return new this.constructor(
+      {
+        counter: combinedCounter,
+        tag: combineTag(this.tag, other.tag),
+      },
+      combinedTypes
+    );
   };
 
   /**
@@ -451,7 +524,7 @@ export class ArrayType extends SchemaType {
     const stats = Object.entries(this.types).reduce((partial, [key, value]) => {
       return {
         ...partial,
-        [key]: { counter: value.counter, marker: value.marker },
+        [key]: { counter: value.counter, tag: value.tag },
       };
     }, {});
     list.push({ path, stats, total: this.counter, type: 'Array' });
@@ -474,8 +547,11 @@ export class UnionType extends SchemaType {
    */
   public types: SchemaObject;
 
-  public constructor(counter = 0, types = {}) {
-    super(counter);
+  public constructor(
+    { counter = 0 }: SchemaTypeParams = { counter: 0 },
+    types = {}
+  ) {
+    super({ counter });
     this.type = 'Union';
     this.types = types;
   }
@@ -508,7 +584,12 @@ export class UnionType extends SchemaType {
     return result;
   };
 
-  public combine = (other: SchemaType, counter?: number): UnionType => {
+  public combine = (
+    other: SchemaType,
+    { counter, combineTag = keepFirst }: CombineOptions = {
+      combineTag: keepFirst,
+    }
+  ): UnionType => {
     let combinedTypes: SchemaObject = Object.entries(this.types).reduce(
       (copy: SchemaObject, [type, schema]) => {
         copy[type] = schema.copy();
@@ -528,7 +609,10 @@ export class UnionType extends SchemaType {
       combinedTypes = Object.entries(other.types).reduce(
         (types: SchemaObject, [type, schema]) => {
           if (types[type]) {
-            types[type] = types[type].combine(schema, counter);
+            types[type] = types[type].combine(schema, {
+              counter,
+              combineTag,
+            });
           } else {
             types[type] = schema.copy();
           }
@@ -537,17 +621,17 @@ export class UnionType extends SchemaType {
         combinedTypes
       );
     } else if (this.types[other.type]) {
-      combinedTypes[other.type] = this.types[other.type].combine(
-        other,
-        counter
-      );
+      combinedTypes[other.type] = this.types[other.type].combine(other, {
+        counter,
+        combineTag,
+      });
     } else {
       combinedTypes[other.type] = other.copy();
     }
 
     const combinedCounter = counter || this.counter + other.counter;
     // @ts-ignore ts(2351)
-    return new this.constructor(combinedCounter, combinedTypes);
+    return new this.constructor({ counter: combinedCounter }, combinedTypes);
   };
 
   /**
@@ -567,7 +651,7 @@ export class UnionType extends SchemaType {
     const stats = Object.entries(this.types).reduce((partial, [key, value]) => {
       return {
         ...partial,
-        [key]: { counter: value.counter, marker: value.marker },
+        [key]: { counter: value.counter, tag: value.tag },
       };
     }, {});
     list.push({ path, stats, total: this.counter, type: 'Union' });
