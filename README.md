@@ -300,7 +300,7 @@ const combinedModel = model.combine(otherModel);
  */
 ```
 
-**Note:** `combine` is a partially destructive operation on `tags`, since we only keep one tag per node of the model. However, `combine` will still guarantee that you have at least one tag for each type that is present at each level in your model.
+**Note:** By default, `combine` is a partially destructive operation on `tags`, since we only keep one tag per node of the model. However, `combine` will still guarantee that you have at least one tag for each type that is present at each level in your model.
 
 For instance, if we retake our previous example, but mark each record with a specific tag, we can identify **one** record for each parts of the model, and so we can have information on **one** of the records that have the description field, and **one** of the records that are missing it.
 
@@ -406,6 +406,113 @@ const combinedModel = model.combine(otherModel);
 ```
 
 The `UnionType` in this model will therefore have a different tag for each type it encounters, giving you a means of investigating what caused the divergence, if you selected your tag carefully.
+
+**combineTag option**
+If, when merging schemas together, having a single tag per node is not sufficient for your use case, you can use the `combineTag` option to have more control on which tags to keep and how to combine them.
+
+Here is an example using combine tag:
+```js
+const { convertToSchema } = require('@algolia/json-stream-analyzer/inference');
+
+const jsonObject = {
+  title: 'some title',
+  pageviews: 132,
+};
+const model = convertToSchema(jsonObject, ['objectID1']);
+/**
+ * model:
+ * {
+ *   type: 'Object',
+ *   counter: 1,
+ *   tag: ['objectID1'],
+ *   schema: {
+ *     title: {
+ *       type: 'String',
+ *       counter: 1,
+ *       tag: ['objectID1'],
+ *     },
+ *     pageviews: {
+ *       type: 'Number',
+ *       counter: 1,
+ *       tag: ['objectID1'],
+ *     }
+ *   }
+ * }
+ */
+
+const otherJsonObject = {
+  title: 'some title',
+  pageviews: 132,
+  description: 'some optional description',
+};
+const otherModel = convertToSchema(otherJsonObject, ['objectID2']);
+/**
+ * model:
+ * {
+ *   type: 'Object',
+ *   counter: 1,
+ *   tag: ['objectID2'],
+ *   schema: {
+ *     title: {
+ *       type: 'String',
+ *       counter: 1,
+ *       tag: ['objectID2'],
+ *     },
+ *     pageviews: {
+ *       type: 'Number',
+ *       counter: 1,
+ *       tag: ['objectID2'],
+ *     },
+ *     description: {
+ *       type: 'String',
+ *       counter: 1,
+ *       tag: ['objectID2'],
+ *     }
+ *   }
+ * }
+ */
+
+const combineTag = (tag1, tag2) => [...tag1, ...tag2];
+const combinedModel = model.combine(otherModel, { combineTag });
+/**
+ * model:
+ * {
+ *   type: 'Object',
+ *   counter: 2,
+ *   tag: ['objectID1', 'objectID2'],
+ *   schema: {
+ *     title: {
+ *       type: 'String',
+ *       counter: 2,
+ *       tag: ['objectID1', 'objectID2'],
+ *     },
+ *     pageviews: {
+ *       type: 'Number',
+ *       counter: 2,
+ *       tag: ['objectID1', 'objectID2'],
+ *     },
+ *     description: {
+ *       type: 'Union',
+ *       counter: 2,
+ *       tag: ['objectID2'],
+ *       types: {
+ *         Missing: {
+ *           type: 'Missing',
+ *           counter: 1,
+ *           tag: ['objectID1'],
+ *         }
+ *         String: {
+ *           type: 'String',
+ *           counter: 1,
+ *           tag: ['objectID2'],
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ */
+```
+
 
 #### `asList`
 
