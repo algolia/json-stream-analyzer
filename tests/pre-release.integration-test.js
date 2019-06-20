@@ -133,7 +133,6 @@ describe('library behaviour', () => {
     ];
 
     const actual = model.diagnose();
-    console.log(JSON.stringify(actual, null, 2));
 
     expect(actual).toEqual(expected);
   });
