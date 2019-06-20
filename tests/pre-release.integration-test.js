@@ -11,49 +11,41 @@ describe('library structure', () => {
     const library = require('@algolia/json-stream-analyzer');
 
     expect(library).toBeDefined();
-    expect(library.inference).toBeDefined();
-    expect(library.diagnostics).toBeDefined();
-    expect(library.aggregation).toBeDefined();
-    expect(library.analyzers).toBeDefined();
+    expect(library.models).toBeDefined();
+    expect(library.types).toBeDefined();
 
     expect(library.default).toBeDefined();
   });
 
   it('can require inference sub-library', () => {
-    const library = require('@algolia/json-stream-analyzer/inference');
+    const library = require('@algolia/json-stream-analyzer/types');
 
     expect(library).toBeDefined();
-    expect(library.SchemaType).toBeDefined();
+    expect(library.ArrayType).toBeDefined();
+    expect(library.BooleanType).toBeDefined();
+    expect(library.MissingType).toBeDefined();
+    expect(library.NullType).toBeDefined();
+    expect(library.NumberType).toBeDefined();
+    expect(library.ObjectType).toBeDefined();
+    expect(library.UnionType).toBeDefined();
+    expect(library.UnknownType).toBeDefined();
   });
 
   it('can require diagnostic sub-library', () => {
-    const library = require('@algolia/json-stream-analyzer/diagnostics');
+    const library = require('@algolia/json-stream-analyzer/models');
 
     expect(library).toBeDefined();
-    expect(library.diagnose).toBeDefined();
-  });
-
-  it('can require aggregation sub-library', () => {
-    const library = require('@algolia/json-stream-analyzer/aggregation');
-
-    expect(library).toBeDefined();
-    expect(library.aggregateByPath).toBeDefined();
-  });
-
-  it('can require analyzers sub-library', () => {
-    const library = require('@algolia/json-stream-analyzer/analyzers');
-
-    expect(library).toBeDefined();
-    expect(library.SyncAnalyzer).toBeDefined();
+    expect(library.ArrayTagModel).toBeDefined();
+    expect(library.SimpleTagModel).toBeDefined();
   });
 });
 
 describe('library behaviour', () => {
-  let library = require('@algolia/json-stream-analyzer');
+  const library = require('@algolia/json-stream-analyzer');
 
   it('builds expected analysis', () => {
-    const { SyncAnalyzer } = library.analyzers;
-    const analyzer = new SyncAnalyzer({ tag: ({ id }) => `${id}` });
+    const { ArrayTagModel } = library.models;
+    const model = new ArrayTagModel({ tag: ({ id }) => `${id}`, size: 2 });
 
     const inputs = [
       { id: 1, optDesc: 'some optional description' },
@@ -71,182 +63,78 @@ describe('library behaviour', () => {
       { id: 4, optArray: [{ value: 42 }] },
     ];
 
-    analyzer.pushToModel(inputs);
+    inputs.forEach(input => model.addToModel(input));
 
-    const expected = {
-      processed: { count: 4 },
-      issues: [
-        {
-          path: ['optDesc'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optDesc'],
-              affected: 3,
-              tag: '2',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 3,
-          total: 4,
-        },
-        {
-          path: ['optArray'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optArray'],
-              affected: 1,
-              tag: '1',
-            },
-            {
-              id: 'emptyArray',
-              title: 'Empty Array',
-              type: 'Array',
-              path: ['optArray', '(Array)'],
-              affected: 1,
-              tag: '3',
-            },
-          ],
-          nbIssues: 2,
-          totalAffected: 2,
-          total: 4,
-        },
-        {
-          path: ['optArray', '[]', 'description'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optArray', '(Array)', '[Object]', 'description'],
-              affected: 1,
-              tag: '4',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 1,
-          total: 2,
-        },
-      ],
-    };
-
-    const actual = analyzer.diagnose();
-
-    expect(actual.processed).toEqual(expected.processed);
-    expect(actual.issues).toEqual(expected.issues);
-  });
-
-  it('builds expected analysis with dismissed issues', () => {
-    const { SyncAnalyzer } = library.analyzers;
-    const analyzer = new SyncAnalyzer({
-      tag: ({ id }) => `${id}`,
-      dismiss: diagnostic => {
-        // dismiss all missing data diagnostics
-        return diagnostic.id === 'missing';
-      },
-    });
-
-    const inputs = [
-      { id: 1, optDesc: 'some optional description' },
+    const expected = [
       {
-        id: 2,
-        optArray: [
-          {
-            description:
-              'an array that can be empty or missing, and so can this description',
-            value: 12,
-          },
-        ],
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['optArray'],
+        affected: 1,
+        tag: ['1'],
       },
-      { id: 3, optArray: [] },
-      { id: 4, optArray: [{ value: 42 }] },
+      {
+        id: 'healthy',
+        title: 'Healthy Records',
+        type: 'Union',
+        path: ['optArray'],
+        affected: 3,
+        tag: ['2', '3'],
+      },
+      {
+        id: 'emptyArray',
+        title: 'Empty Array',
+        type: 'Array',
+        path: ['optArray', '(Array)'],
+        affected: 1,
+        tag: ['3'],
+      },
+      {
+        id: 'healthy',
+        title: 'Healthy Records',
+        type: 'Array',
+        path: ['optArray', '(Array)'],
+        affected: 2,
+        tag: ['2', '4'],
+      },
+      {
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['optArray', '(Array)', '[Object]', 'description'],
+        affected: 1,
+        tag: ['4'],
+      },
+      {
+        id: 'healthy',
+        title: 'Healthy Records',
+        type: 'Union',
+        path: ['optArray', '(Array)', '[Object]', 'description'],
+        affected: 1,
+        tag: ['2'],
+      },
+      {
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['optDesc'],
+        affected: 3,
+        tag: ['2', '3'],
+      },
+      {
+        id: 'healthy',
+        title: 'Healthy Records',
+        type: 'Union',
+        path: ['optDesc'],
+        affected: 1,
+        tag: ['1'],
+      },
     ];
 
-    analyzer.pushToModel(inputs);
+    const actual = model.diagnose();
+    console.log(JSON.stringify(actual, null, 2));
 
-    const expected = {
-      processed: { count: 4 },
-      issues: [
-        {
-          path: ['optArray'],
-          issues: [
-            {
-              id: 'emptyArray',
-              title: 'Empty Array',
-              type: 'Array',
-              path: ['optArray', '(Array)'],
-              affected: 1,
-              tag: '3',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 1,
-          // this went from 4 to 3 when dismissing other issues.
-          // TODO: We should investigate why
-          total: 3,
-        },
-      ],
-      dismissed: [
-        {
-          path: ['optDesc'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optDesc'],
-              affected: 3,
-              tag: '2',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 3,
-          total: 4,
-        },
-        {
-          path: ['optArray'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optArray'],
-              affected: 1,
-              tag: '1',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 1,
-          total: 4,
-        },
-        {
-          path: ['optArray', '[]', 'description'],
-          issues: [
-            {
-              id: 'missing',
-              title: 'Missing Data',
-              type: 'Union',
-              path: ['optArray', '(Array)', '[Object]', 'description'],
-              affected: 1,
-              tag: '4',
-            },
-          ],
-          nbIssues: 1,
-          totalAffected: 1,
-          total: 2,
-        },
-      ],
-    };
-
-    const actual = analyzer.diagnose();
-
-    expect(actual.processed).toEqual(expected.processed);
-    expect(actual.issues).toEqual(expected.issues);
-    expect(actual.dismissed).toEqual(expected.dismissed);
+    expect(actual).toEqual(expected);
   });
 });

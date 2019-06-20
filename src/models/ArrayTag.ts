@@ -17,12 +17,12 @@ export class ArrayTagModel {
     this.size = size;
   }
 
-  public convert(record: any): SchemaType {
+  public convert = (record: any): SchemaType => {
     const tag = [this.tag(record)];
     return convertToSchema(record, tag);
-  }
+  };
 
-  public combineTag(thisTag: any, otherTag: any): any {
+  public combineTag = (thisTag: any, otherTag: any): any => {
     if (Array.isArray(thisTag) && thisTag.length >= this.size) {
       return thisTag;
     }
@@ -40,21 +40,21 @@ export class ArrayTagModel {
     }
 
     return [thisTag, otherTag];
-  }
+  };
 
-  public combine(first: SchemaType, second: SchemaType): SchemaType {
+  public combine = (first: SchemaType, second: SchemaType): SchemaType => {
     return first.combine(second, { combineTag: this.combineTag });
-  }
+  };
 
-  public diagnose(): Diagnostic[] {
+  public diagnose = (): Diagnostic[] => {
     if (this.model) {
       return this.model.diagnose();
     }
 
     return [];
-  }
+  };
 
-  public diagnoseRecord(record: any): Diagnostic[] {
+  public diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = [this.tag(record)];
     const recordModel = convertToSchema(record, tag);
 
@@ -72,21 +72,14 @@ export class ArrayTagModel {
 
       return diagnostic.tag.includes(tag[0]);
     });
-  }
+  };
 
-  public addToModel(record: any): void {
+  public addToModel = (record: any): void => {
     const recordModel = this.convert(record);
     if (!this.model) {
       this.model = recordModel;
     } else {
       this.model = this.combine(this.model, recordModel);
     }
-  }
+  };
 }
-
-/**
- * const indexModel = new ArrayTagModel({ tag: (record) => record.objectID, size: 20 });
- * hits.forEach((record) => indexModel.addToModel(record));
- *
- * indexModel.diagnoseRecord(record);
- */

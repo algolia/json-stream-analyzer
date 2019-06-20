@@ -9,28 +9,28 @@ export class SimpleTagModel {
     this.tag = tag;
   }
 
-  public convert(record: any): SchemaType {
+  public convert = (record: any): SchemaType => {
     const tag = this.tag(record);
     return convertToSchema(record, tag);
-  }
+  };
 
-  public combineTag(firstTag: any): any {
+  public combineTag = (firstTag: any): any => {
     return firstTag;
-  }
+  };
 
-  public combine(first: SchemaType, second: SchemaType): SchemaType {
+  public combine = (first: SchemaType, second: SchemaType): SchemaType => {
     return first.combine(second, { combineTag: this.combineTag });
-  }
+  };
 
-  public diagnose(): Diagnostic[] {
+  public diagnose = (): Diagnostic[] => {
     if (this.model) {
       return this.model.diagnose();
     }
 
     return [];
-  }
+  };
 
-  public diagnoseRecord(record: any): Diagnostic[] {
+  public diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = this.tag(record);
     const recordModel = convertToSchema(record, tag);
 
@@ -44,14 +44,14 @@ export class SimpleTagModel {
     return combined.diagnose().filter((diagnostic: Diagnostic) => {
       return diagnostic.tag === tag;
     });
-  }
+  };
 
-  public addToModel(record: any): void {
+  public addToModel = (record: any): void => {
     const recordModel = this.convert(record);
     if (!this.model) {
       this.model = recordModel;
     } else {
       this.model = this.combine(this.model, recordModel);
     }
-  }
+  };
 }
