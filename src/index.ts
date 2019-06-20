@@ -1,10 +1,7 @@
-import * as _inference from './inference';
-import * as _diagnostics from './diagnostics';
-import * as _aggregation from './aggregation';
-import * as _analyzers from './analyzers';
+import convertToSchema from './convert';
+import * as _types from './types';
+import * as _models from './models';
 
-export const inference = _inference;
-export const diagnostics = _diagnostics;
-export const aggregation = _aggregation;
-export const analyzers = _analyzers;
-export default _analyzers.SyncAnalyzer;
+export const types = _types;
+export const models = _models;
+export default convertToSchema;
