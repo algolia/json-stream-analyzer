@@ -1,13 +1,11 @@
-import {
-  BooleanType,
-  NullType,
-  NumberType,
-  StringType,
-  ArrayType,
-  ObjectType,
-  UnionType,
-  MissingType,
-} from '.';
+import { ArrayType } from './ArrayType';
+import { BooleanType } from './BooleanType';
+import { MissingType } from './MissingType';
+import { NullType } from './NullType';
+import { NumberType } from './NumberType';
+import { ObjectType } from './ObjectType';
+import { StringType } from './StringType';
+import { UnionType } from './UnionType';
 
 describe('StringType simple test case', () => {
   describe('constructor', () => {
@@ -70,7 +68,7 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with MissingType', () => {
-      const combined: UnionType = new StringType().combine(new MissingType());
+      const combined = new StringType().combine(new MissingType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -79,7 +77,7 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with NullType', () => {
-      const combined = new StringType().combine(new NullType());
+      const combined = new StringType().combine(new NullType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -88,7 +86,7 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with ObjectType', () => {
-      const combined = new StringType().combine(new ObjectType());
+      const combined = new StringType().combine(new ObjectType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -97,7 +95,7 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with NumberType', () => {
-      const combined = new StringType().combine(new NumberType());
+      const combined = new StringType().combine(new NumberType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -106,7 +104,7 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with BooleanType', () => {
-      const combined = new StringType().combine(new BooleanType());
+      const combined = new StringType().combine(new BooleanType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -115,21 +113,12 @@ describe('StringType simple test case', () => {
     });
 
     it('can combine with ArrayType', () => {
-      const combined = new StringType().combine(new ArrayType());
+      const combined = new StringType().combine(new ArrayType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
       expect(combined.types.String.counter).toEqual(1);
       expect(combined.types.Array.counter).toEqual(1);
-    });
-  });
-
-  describe('#convert', () => {
-    it('transforms String into StringType', () => {
-      const converted = new StringType().convert('test');
-
-      expect(converted.type).toEqual('String');
-      expect(converted.counter).toEqual(1);
     });
   });
 });

@@ -1,13 +1,13 @@
-import {
-  BooleanType,
-  NullType,
-  NumberType,
-  StringType,
-  ArrayType,
-  ObjectType,
-  UnionType,
-  MissingType,
-} from '.';
+import convertToSchema from '../convert';
+
+import { ArrayType } from './ArrayType';
+import { BooleanType } from './BooleanType';
+import { MissingType } from './MissingType';
+import { NullType } from './NullType';
+import { NumberType } from './NumberType';
+import { ObjectType } from './ObjectType';
+import { StringType } from './StringType';
+import { UnionType } from './UnionType';
 
 describe('ArrayType simple test case', () => {
   describe('constructor', () => {
@@ -70,7 +70,7 @@ describe('ArrayType simple test case', () => {
     });
 
     it('can combine with NullType', () => {
-      const combined: UnionType = new ArrayType().combine(new NullType());
+      const combined: any = new ArrayType().combine(new NullType());
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -123,23 +123,11 @@ describe('ArrayType simple test case', () => {
       expect(combined.types.Missing.counter).toEqual(1);
     });
   });
-
-  describe('#convert', () => {
-    it('transforms Array into ArrayType', () => {
-      const converted = new ArrayType().convert([]);
-
-      expect(converted.type).toEqual('Array');
-      expect(converted.counter).toEqual(1);
-    });
-  });
 });
 
 describe('Simple Array Type test case', () => {
   it('defines correct schema for string arrays', () => {
-    const converted = new ArrayType().convert([
-      'someText',
-      'someText',
-    ]) as ArrayType;
+    const converted = convertToSchema(['someText', 'someText']) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.String).toBeDefined();
@@ -148,7 +136,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for boolean arrays', () => {
-    const converted = new ArrayType().convert([true, true]) as ArrayType;
+    const converted = convertToSchema([true, true]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Boolean).toBeDefined();
@@ -157,7 +145,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for null arrays', () => {
-    const converted = new ArrayType().convert([null, null, null]) as ArrayType;
+    const converted = convertToSchema([null, null, null]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Null).toBeDefined();
@@ -166,7 +154,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for number arrays', () => {
-    const converted = new ArrayType().convert([123, 42, 6]) as ArrayType;
+    const converted = convertToSchema([123, 42, 6]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Number).toBeDefined();
@@ -175,7 +163,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for array arrays', () => {
-    const converted = new ArrayType().convert([[234], [24], [23]]) as ArrayType;
+    const converted = convertToSchema([[234], [24], [23]]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.Array).toBeDefined();
@@ -184,7 +172,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for object arrays', () => {
-    const converted = new ArrayType().convert([
+    const converted = convertToSchema([
       { count: 123 },
       { count: 42 },
       { count: 234 },
@@ -197,11 +185,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('defines correct schema for multi-type arrays', () => {
-    const converted = new ArrayType().convert([
-      'someText',
-      123,
-      null,
-    ]) as ArrayType;
+    const converted = convertToSchema(['someText', 123, null]) as ArrayType;
 
     expect(converted.type).toEqual('Array');
     expect(converted.types.String).toBeDefined();
@@ -214,7 +198,7 @@ describe('Simple Array Type test case', () => {
   });
 
   it('merges child object schemas into one', () => {
-    const converted = new ArrayType().convert([
+    const converted = convertToSchema([
       { count: 123 },
       { count: 42, opt: true },
       { count: 234 },

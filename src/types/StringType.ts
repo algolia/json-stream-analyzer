@@ -1,32 +1,19 @@
-export type TagCombiner = (thisTag: any, otherTag?: any) => any;
+import {
+  SchemaTypeParams,
+  SchemaType,
+  SchemaTypeID,
+  CombineOptions,
+  Diagnostic,
+} from '../interfaces';
+import { keepFirst } from '../tags/combiners';
+import { UnionType } from './UnionType';
 
-export interface CombineOptions {
-  counter?: number;
-  combineTag: TagCombiner;
-}
-
-export type SchemaTypeID =
-  | 'unknownType'
-  | 'String'
-  | 'Boolean'
-  | 'Number'
-  | 'Null'
-  | 'Missing'
-  | 'Object'
-  | 'Array'
-  | 'Union';
-
-export interface SchemaTypeParams {
-  counter?: number;
-  tag?: any;
-}
-
-export interface SchemaType {
+export class StringType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
    * Types like NumberType, StringType, ObjectType
    */
-  type: SchemaTypeID;
+  public type: SchemaTypeID;
 
   /**
    * A user-defined identifier that is used to label every node of the schema.
@@ -40,14 +27,20 @@ export interface SchemaType {
    * Note: In the model, we will only ever keep only one tag on every node of the
    * tree representation of the schema type
    */
-  tag?: any;
+  public tag?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
    * This is useful to measure how many times an attribute is Missing, and compare it to
    * how many times the parent object is present, for instance.
    */
-  counter: number;
+  public counter: number;
+
+  public constructor({ counter = 1, tag }: SchemaTypeParams = { counter: 1 }) {
+    this.counter = counter;
+    this.tag = tag;
+    this.type = 'String';
+  }
 
   /**
    * Generic method to merge two SchemaType into a single model of the correct
@@ -67,7 +60,26 @@ export interface SchemaType {
    * to combine tags together. If unset, it uses a keep-first strategy.
    * @returns {SchemaType} a SchemaType that is the combination of both models
    */
-  combine: (other: SchemaType, options?: CombineOptions) => SchemaType;
+  public combine = (
+    other: SchemaType,
+    { counter, combineTag = keepFirst }: CombineOptions = {
+      combineTag: keepFirst,
+    }
+  ): SchemaType => {
+    if (other.type === this.type) {
+      // @ts-ignore ts(2351)
+      const result = new other.constructor({
+        counter: counter || this.counter + other.counter,
+        tag: combineTag(this.tag, other.tag),
+      });
+      return result;
+    }
+
+    const union = new UnionType();
+    return union
+      .combine(this, { counter, combineTag })
+      .combine(other, { counter, combineTag });
+  };
 
   /**
    * Generic method to create a copy of the current model. It is overriden when
@@ -76,50 +88,13 @@ export interface SchemaType {
    * For immutability purposes.
    * @returns {SchemaType} the copy
    */
-  copy: () => SchemaType;
+  public copy = () => {
+    // @ts-ignore ts(2351)
+    return new this.constructor({ counter: this.counter, tag: this.tag });
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  diagnose: (path?: string[]) => Diagnostic[];
-}
-
-export interface SchemaObject {
-  [key: string]: SchemaType;
-}
-
-export type DiagnosticID =
-  | 'healthy'
-  | 'missing'
-  | 'emptyArray'
-  | 'inconsistentType'
-  | 'polymorphicArray'
-  | 'numericalKeyOnObject';
-
-export interface Diagnostic {
-  id: DiagnosticID;
-  title: string;
-  type: SchemaTypeID;
-  path: string[];
-  affected: number;
-  tag?: any;
-}
-
-export interface PathDiagnosticAggregate {
-  path: string[];
-  issues: Diagnostic[];
-  nbIssues: number;
-  totalAffected: number;
-  total: number;
-}
-
-export interface Analysis {
-  processed: {
-    count: number;
+  public diagnose = (path: string[] = []): Diagnostic[] => {
+    return [];
   };
-  issues: PathDiagnosticAggregate[];
-  dismissed: PathDiagnosticAggregate[];
-  model: SchemaType;
-}
-
-export interface Analyzer {
-  diagnose: () => Analysis;
 }

@@ -1,13 +1,11 @@
-import {
-  BooleanType,
-  NullType,
-  NumberType,
-  StringType,
-  ArrayType,
-  ObjectType,
-  UnionType,
-  MissingType,
-} from '.';
+import { ArrayType } from './ArrayType';
+import { BooleanType } from './BooleanType';
+import { MissingType } from './MissingType';
+import { NullType } from './NullType';
+import { NumberType } from './NumberType';
+import { ObjectType } from './ObjectType';
+import { StringType } from './StringType';
+import { UnionType } from './UnionType';
 
 describe('UnionType simple test case', () => {
   describe('constructor', () => {
