@@ -159,7 +159,7 @@ export class ArrayType implements SchemaType {
   };
 
   public diagnose = (path: string[] = []): Diagnostic[] => {
-    let diagnostics: Diagnostic[] = [];
+    const diagnostics: Diagnostic[] = [];
     let missingAffected = 0;
     if (this.types.Missing) {
       const diagnostic: Diagnostic = {
@@ -169,7 +169,7 @@ export class ArrayType implements SchemaType {
         path,
         affected: this.types.Missing.counter,
         tag: this.types.Missing.tag,
-      }
+      };
 
       diagnostics.push(diagnostic);
 
@@ -181,7 +181,6 @@ export class ArrayType implements SchemaType {
     )[0][1].tag;
 
     if (isMultiType(Object.keys(this.types))) {
-
       const diagnostic: Diagnostic = {
         id: 'polymorphicArray',
         title: `Array may contain multiple types`,
@@ -192,8 +191,7 @@ export class ArrayType implements SchemaType {
       };
 
       diagnostics.push(diagnostic);
-    }
-    else {
+    } else {
       const diagnostic: Diagnostic = {
         id: 'healthy',
         title: `Healthy Records`,
@@ -201,15 +199,11 @@ export class ArrayType implements SchemaType {
         path,
         affected: this.counter - missingAffected,
         tag: possibleTag,
-      }
+      };
 
       diagnostics.push(diagnostic);
     }
 
-
-    return [
-      ...diagnostics,
-      ...this.diagnoseChildren(path),
-    ];
+    return [...diagnostics, ...this.diagnoseChildren(path)];
   };
 }

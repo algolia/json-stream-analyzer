@@ -1,28 +1,28 @@
-import { SchemaType, Diagnostic } from "../interfaces";
-import convertToSchema from "../convert";
+import { SchemaType, Diagnostic } from '../interfaces';
+import convertToSchema from '../convert';
 
 export class SimpleTagModel {
   private tag: (record: any) => any;
   private model?: SchemaType;
 
-  constructor({ tag }: { tag: (record: any) => any }) {
+  public constructor({ tag }: { tag: (record: any) => any }) {
     this.tag = tag;
   }
 
-  convert(record: any): SchemaType {
+  public convert(record: any): SchemaType {
     const tag = this.tag(record);
     return convertToSchema(record, tag);
   }
 
-  combineTag(firstTag: any) {
+  public combineTag(firstTag: any): any {
     return firstTag;
   }
 
-  combine(first: SchemaType, second: SchemaType): SchemaType {
-    return first.combine(second, { combineTag: this.combineTag })
+  public combine(first: SchemaType, second: SchemaType): SchemaType {
+    return first.combine(second, { combineTag: this.combineTag });
   }
 
-  diagnose(): Diagnostic[] {
+  public diagnose(): Diagnostic[] {
     if (this.model) {
       return this.model.diagnose();
     }
@@ -30,15 +30,14 @@ export class SimpleTagModel {
     return [];
   }
 
-  diagnoseRecord(record: any) {
+  public diagnoseRecord(record: any): Diagnostic[] {
     const tag = this.tag(record);
     const recordModel = convertToSchema(record, tag);
 
     let combined;
     if (this.model) {
       combined = this.combine(record, this.model);
-    }
-    else {
+    } else {
       combined = recordModel;
     }
 
@@ -47,12 +46,11 @@ export class SimpleTagModel {
     });
   }
 
-  addToModel(record: any) {
+  public addToModel(record: any): void {
     const recordModel = this.convert(record);
     if (!this.model) {
       this.model = recordModel;
-    }
-    else {
+    } else {
       this.model = this.combine(this.model, recordModel);
     }
   }
