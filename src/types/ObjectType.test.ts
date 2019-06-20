@@ -1,13 +1,13 @@
-import {
-  BooleanType,
-  NullType,
-  NumberType,
-  StringType,
-  ArrayType,
-  ObjectType,
-  UnionType,
-  MissingType,
-} from '.';
+import convertToSchema from '../convert';
+
+import { ArrayType } from './ArrayType';
+import { BooleanType } from './BooleanType';
+import { MissingType } from './MissingType';
+import { NullType } from './NullType';
+import { NumberType } from './NumberType';
+import { ObjectType } from './ObjectType';
+import { StringType } from './StringType';
+import { UnionType } from './UnionType';
 
 describe('ObjectType simple test case', () => {
   describe('constructor', () => {
@@ -123,15 +123,6 @@ describe('ObjectType simple test case', () => {
       expect(combined.types.Array.counter).toEqual(1);
     });
   });
-
-  describe('#convert', () => {
-    it('transforms Object into ObjectType', () => {
-      const converted = new ObjectType().convert({});
-
-      expect(converted.type).toEqual('Object');
-      expect(converted.counter).toEqual(1);
-    });
-  });
 });
 
 describe('ObjectType schema test case', () => {
@@ -152,7 +143,7 @@ describe('ObjectType schema test case', () => {
         },
       };
 
-      const converted = new ObjectType().convert(record) as ObjectType;
+      const converted = convertToSchema(record) as ObjectType;
 
       const expectedSchema = {
         someNums: {
@@ -213,9 +204,9 @@ describe('ObjectType schema test case', () => {
         },
       };
 
-      const converted = new ObjectType()
-        .convert(firstRecord, 'm1')
-        .combine(new ObjectType().convert(secondRecord, 'm2'));
+      const converted = convertToSchema(firstRecord, 'm1').combine(
+        convertToSchema(secondRecord, 'm2')
+      ) as ObjectType;
 
       const expectedSchema = {
         someNums: {
@@ -315,12 +306,12 @@ describe('ObjectType schema test case', () => {
         ],
       };
 
-      const converted = new ObjectType()
-        .convert(firstRecord)
-        .combine(new ArrayType().convert(secondRecord));
-      const reverseConverted = new ArrayType()
-        .convert(secondRecord)
-        .combine(new ObjectType().convert(firstRecord));
+      const converted = convertToSchema(firstRecord).combine(
+        convertToSchema(secondRecord)
+      );
+      const reverseConverted = convertToSchema(secondRecord).combine(
+        convertToSchema(firstRecord)
+      );
 
       const expectedSchema = {
         type: 'Object',

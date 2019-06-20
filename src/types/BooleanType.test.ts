@@ -1,13 +1,11 @@
-import {
-  BooleanType,
-  NullType,
-  NumberType,
-  StringType,
-  ArrayType,
-  ObjectType,
-  UnionType,
-  MissingType,
-} from '.';
+import { ArrayType } from './ArrayType';
+import { BooleanType } from './BooleanType';
+import { MissingType } from './MissingType';
+import { NullType } from './NullType';
+import { NumberType } from './NumberType';
+import { ObjectType } from './ObjectType';
+import { StringType } from './StringType';
+import { UnionType } from './UnionType';
 
 describe('BooleanType simple test case', () => {
   describe('constructor', () => {
@@ -93,7 +91,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with NullType', () => {
-      const combined: UnionType = new BooleanType().combine(new NullType());
+      const combined = new BooleanType().combine(new NullType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -102,7 +100,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with NumberType', () => {
-      const combined = new BooleanType().combine(new NumberType());
+      const combined = new BooleanType().combine(new NumberType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -111,7 +109,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with StringType', () => {
-      const combined = new BooleanType().combine(new StringType());
+      const combined = new BooleanType().combine(new StringType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -120,7 +118,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with ObjectType', () => {
-      const combined = new BooleanType().combine(new ObjectType());
+      const combined = new BooleanType().combine(new ObjectType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -129,7 +127,7 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with ArrayType', () => {
-      const combined = new BooleanType().combine(new ArrayType());
+      const combined = new BooleanType().combine(new ArrayType()) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
@@ -138,21 +136,14 @@ describe('BooleanType simple test case', () => {
     });
 
     it('can combine with MissingType', () => {
-      const combined = new BooleanType().combine(new MissingType());
+      const combined = new BooleanType().combine(
+        new MissingType()
+      ) as UnionType;
 
       expect(combined.type).toEqual('Union');
       expect(combined.counter).toEqual(2);
       expect(combined.types.Boolean.counter).toEqual(1);
       expect(combined.types.Missing.counter).toEqual(1);
-    });
-  });
-
-  describe('#convert', () => {
-    it('transforms Boolean into BooleanType', () => {
-      const converted = new BooleanType().convert(true);
-
-      expect(converted.type).toEqual('Boolean');
-      expect(converted.counter).toEqual(1);
     });
   });
 });
