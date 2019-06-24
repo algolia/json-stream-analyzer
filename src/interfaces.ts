@@ -78,8 +78,9 @@ export interface SchemaType {
    */
   copy: () => SchemaType;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   diagnose: (path?: string[]) => Diagnostic[];
+
+  traverse: (path?: string[]) => { schema?: SchemaType; path: string[] };
 }
 
 export interface SchemaObject {
@@ -103,23 +104,14 @@ export interface Diagnostic {
   tag?: any;
 }
 
-export interface PathDiagnosticAggregate {
-  path: string[];
-  issues: Diagnostic[];
-  nbIssues: number;
-  totalAffected: number;
-  total: number;
-}
-
-export interface Analysis {
-  processed: {
-    count: number;
-  };
-  issues: PathDiagnosticAggregate[];
-  dismissed: PathDiagnosticAggregate[];
-  model: SchemaType;
-}
-
-export interface Analyzer {
-  diagnose: () => Analysis;
+export interface Model {
+  tag: (record: any) => any;
+  schema?: SchemaType;
+  convert: (record: any) => SchemaType;
+  combineTag: (thisTag: any, otherTag: any) => any;
+  combine: (first: SchemaType, second: SchemaType) => SchemaType;
+  diagnose: () => Diagnostic[];
+  diagnoseRecord: (record: any) => Diagnostic[];
+  addToModel: (record: any) => void;
+  traverseSchema: (path: string[]) => { schema?: SchemaType; path: string[] };
 }

@@ -136,4 +136,52 @@ describe('library behaviour', () => {
 
     expect(actual).toEqual(expected);
   });
+
+  it('builds the other expected analysis', () => {
+    const records = [
+      {
+        "objectID": "4228100",
+        "title": "JBL - Flip 3 Portable Bluetooth Speaker - Black",
+        "img": "https://cdn-demo.algolia.com/bestbuy-0118/4228100_sb.jpg",
+        "rating": 4,
+        "onsale": false
+      },
+      {
+        "objectID": "6848136",
+        "title": "Apple - EarPods™ with Remote and Mic - White",
+        "img": "https://cdn-demo.algolia.com/bestbuy-0118/6848136_sb.jpg",
+        "rating": 4,
+        "onsale": false,
+        "category": "headphones"
+      }
+    ];
+
+    const { ArrayTagModel } = library.models;
+    const model = new ArrayTagModel({ tag: ({ objectID }) => objectID, size: 20 });
+
+    records.forEach(record => model.addToModel(record));
+
+    const expected = [
+      {
+        id: 'missing',
+        title: 'Missing Data',
+        type: 'Union',
+        path: ['category'],
+        affected: 1,
+        tag: ['4228100'],
+      },
+      {
+        id: 'healthy',
+        title: 'Healthy Records',
+        type: 'Union',
+        path: ['category'],
+        affected: 1,
+        tag: ['6848136'],
+      },
+    ]
+
+    const actual = model.diagnose();
+
+    expect(actual).toEqual(expected);
+  })
 });

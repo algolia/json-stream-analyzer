@@ -193,4 +193,26 @@ export class ObjectType implements SchemaType {
       diagnostics
     );
   };
+
+  public traverse = (path: string[] = []) => {
+    const invalidPathSchema: { path: string[]; schema: SchemaType } = {
+      path: [],
+      schema: this as SchemaType,
+    };
+    if (path.length === 0) {
+      return invalidPathSchema;
+    }
+
+    const segment = path[0];
+
+    const subSchema = this.schema[segment];
+    if (subSchema) {
+      const { path: subPath, schema: traversedSchema } = subSchema.traverse(
+        path.slice(1)
+      );
+      return { path: [segment, ...subPath], schema: traversedSchema };
+    }
+
+    return invalidPathSchema;
+  };
 }
