@@ -215,4 +215,30 @@ export class UnionType implements SchemaType {
 
     return [...diagnostics, ...this.diagnoseChildren(path)];
   };
+
+  public traverse = (path: string[] = []) => {
+    const invalidPathSchema: { path: string[]; schema: SchemaType } = {
+      path: [],
+      schema: this as SchemaType,
+    };
+    if (path.length === 0) {
+      return invalidPathSchema;
+    }
+
+    const segment = path[0];
+
+    if (segment.match(/^\(.*\)$/)) {
+      // the type-check is a fail-safe -- this should never be false without a processing bug
+      const match = segment!.match(/^\((.*)\)$/);
+      const subSchema = this.types[match![0]];
+      if (subSchema) {
+        const { path: subPath, schema: traversedSchema } = subSchema.traverse(
+          path.slice(1)
+        );
+        return { path: [segment, ...subPath], schema: traversedSchema };
+      }
+    }
+
+    return invalidPathSchema;
+  };
 }

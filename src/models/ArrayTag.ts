@@ -1,10 +1,10 @@
-import { SchemaType, Diagnostic } from '../interfaces';
+import { SchemaType, Diagnostic, Model } from '../interfaces';
 import convertToSchema from '../convert';
 
-export class ArrayTagModel {
-  private tag: (record: any) => any;
+export class ArrayTagModel implements Model {
+  public tag: (record: any) => any;
   private size: number;
-  private model?: SchemaType;
+  public schema?: SchemaType;
 
   public constructor({
     tag,
@@ -47,8 +47,8 @@ export class ArrayTagModel {
   };
 
   public diagnose = (): Diagnostic[] => {
-    if (this.model) {
-      return this.model.diagnose();
+    if (this.schema) {
+      return this.schema.diagnose();
     }
 
     return [];
@@ -59,8 +59,8 @@ export class ArrayTagModel {
     const recordModel = convertToSchema(record, tag);
 
     let combined;
-    if (this.model) {
-      combined = this.combine(record, this.model);
+    if (this.schema) {
+      combined = this.combine(record, this.schema);
     } else {
       combined = recordModel;
     }
@@ -76,10 +76,17 @@ export class ArrayTagModel {
 
   public addToModel = (record: any): void => {
     const recordModel = this.convert(record);
-    if (!this.model) {
-      this.model = recordModel;
+    if (!this.schema) {
+      this.schema = recordModel;
     } else {
-      this.model = this.combine(this.model, recordModel);
+      this.schema = this.combine(this.schema, recordModel);
     }
+  };
+
+  public traverseSchema = (path: string[]) => {
+    if (!this.schema) {
+      return { path, schema: this.schema };
+    }
+    return this.schema.traverse(path);
   };
 }

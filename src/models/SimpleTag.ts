@@ -1,9 +1,9 @@
-import { SchemaType, Diagnostic } from '../interfaces';
+import { SchemaType, Diagnostic, Model } from '../interfaces';
 import convertToSchema from '../convert';
 
-export class SimpleTagModel {
-  private tag: (record: any) => any;
-  private model?: SchemaType;
+export class SimpleTagModel implements Model {
+  public tag: (record: any) => any;
+  public schema?: SchemaType;
 
   public constructor({ tag }: { tag: (record: any) => any }) {
     this.tag = tag;
@@ -23,8 +23,8 @@ export class SimpleTagModel {
   };
 
   public diagnose = (): Diagnostic[] => {
-    if (this.model) {
-      return this.model.diagnose();
+    if (this.schema) {
+      return this.schema.diagnose();
     }
 
     return [];
@@ -35,8 +35,8 @@ export class SimpleTagModel {
     const recordModel = convertToSchema(record, tag);
 
     let combined;
-    if (this.model) {
-      combined = this.combine(record, this.model);
+    if (this.schema) {
+      combined = this.combine(record, this.schema);
     } else {
       combined = recordModel;
     }
@@ -48,10 +48,17 @@ export class SimpleTagModel {
 
   public addToModel = (record: any): void => {
     const recordModel = this.convert(record);
-    if (!this.model) {
-      this.model = recordModel;
+    if (!this.schema) {
+      this.schema = recordModel;
     } else {
-      this.model = this.combine(this.model, recordModel);
+      this.schema = this.combine(this.schema, recordModel);
     }
+  };
+
+  public traverseSchema = (path: string[]) => {
+    if (!this.schema) {
+      return { path, schema: this.schema };
+    }
+    return this.schema.traverse(path);
   };
 }

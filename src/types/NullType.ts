@@ -97,4 +97,13 @@ export class NullType implements SchemaType {
   public diagnose = (path: string[] = []): Diagnostic[] => {
     return [];
   };
+
+  public traverse = () => {
+    const invalidPathSchema: { path: string[]; schema: SchemaType } = {
+      path: [],
+      schema: this as SchemaType,
+    };
+
+    return invalidPathSchema;
+  };
 }
