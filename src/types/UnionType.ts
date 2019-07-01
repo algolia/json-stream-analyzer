@@ -80,7 +80,7 @@ export class UnionType implements SchemaType {
     result.counter = this.counter;
     result.types = Object.entries(this.types).reduce(
       (partial: SchemaObject, [key, schema]) => {
-        return { partial, [key]: schema.copy() };
+        return { ...partial, [key]: schema.copy() };
       },
       {}
     );
