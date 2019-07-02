@@ -176,9 +176,10 @@ export class ArrayType implements SchemaType {
       missingAffected = this.types.Missing.counter;
     }
 
-    const possibleTag = Object.entries(this.types).filter(
+    const nonMissingType = Object.entries(this.types).filter(
       ([key]) => key !== 'Missing'
-    )[0][1].tag;
+    )[0];
+    const possibleTag = nonMissingType ? nonMissingType[1].tag : undefined;
 
     if (isMultiType(Object.keys(this.types))) {
       const diagnostic: Diagnostic = {
@@ -191,7 +192,7 @@ export class ArrayType implements SchemaType {
       };
 
       diagnostics.push(diagnostic);
-    } else if (diagnostics.length > 0) {
+    } else if (diagnostics.length > 0 && possibleTag) {
       const diagnostic: Diagnostic = {
         id: 'healthy',
         title: `Healthy Records`,
