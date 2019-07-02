@@ -191,7 +191,7 @@ export class ArrayType implements SchemaType {
       };
 
       diagnostics.push(diagnostic);
-    } else {
+    } else if (diagnostics.length > 0) {
       const diagnostic: Diagnostic = {
         id: 'healthy',
         title: `Healthy Records`,
