@@ -8,6 +8,7 @@ import { NumberType } from './NumberType';
 import { ObjectType } from './ObjectType';
 import { StringType } from './StringType';
 import { UnionType } from './UnionType';
+import { Diagnostic } from '../interfaces';
 
 describe('ArrayType simple test case', () => {
   describe('constructor', () => {
@@ -221,5 +222,30 @@ describe('Simple Array Type test case', () => {
     expect(opt.types.Boolean.counter).toEqual(1);
 
     expect(converted.counter).toEqual(1);
+  });
+
+  it('diagnoses empty array schema even when only provided with empty arrays', () => {
+    const firstModel = convertToSchema([]) as ArrayType;
+    const secondModel = convertToSchema([]) as ArrayType;
+    const combined = firstModel.combine(secondModel);
+
+    expect(combined.type).toEqual('Array');
+    expect(combined.types.Missing).toBeDefined();
+    expect(combined.types.Missing.counter).toEqual(2);
+    expect(combined.counter).toEqual(2);
+
+    const diagnostics = combined.diagnose();
+
+    const expectedDiags: Diagnostic[] = [
+      {
+        id: 'emptyArray',
+        title: 'Empty Array',
+        type: 'Array',
+        path: [],
+        affected: 2,
+      },
+    ];
+
+    expect(diagnostics).toEqual(expectedDiags);
   });
 });
