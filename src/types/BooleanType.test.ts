@@ -6,6 +6,7 @@ import { NumberType } from './NumberType';
 import { ObjectType } from './ObjectType';
 import { StringType } from './StringType';
 import { UnionType } from './UnionType';
+import { SchemaType } from '../interfaces';
 
 describe('BooleanType simple test case', () => {
   describe('constructor', () => {
@@ -81,7 +82,10 @@ describe('BooleanType simple test case', () => {
         return [...first, ...second].slice(0, 5);
       };
 
-      const combined = booleans.reduce((acc, booleanType) => {
+      const combined = booleans.reduce((acc: SchemaType, booleanType: any) => {
+        if (!acc) {
+          return booleanType;
+        }
         return acc.combine(booleanType, { combineTag });
       });
 

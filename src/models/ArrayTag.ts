@@ -56,16 +56,20 @@ export class ArrayTagModel implements Model {
 
   public diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = [this.tag(record)];
-    const recordModel = convertToSchema(record, tag);
+    const recordSchema = convertToSchema(record, tag);
 
     let combined;
     if (this.schema) {
-      combined = this.combine(record, this.schema);
+      combined = this.combine(recordSchema, this.schema);
     } else {
-      combined = recordModel;
+      combined = recordSchema;
     }
 
     return combined.diagnose().filter((diagnostic: Diagnostic) => {
+      if (diagnostic.id === 'healthy') {
+        return false;
+      }
+
       if (!Array.isArray(diagnostic.tag)) {
         return false;
       }
