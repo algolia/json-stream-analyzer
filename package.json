@@ -1,6 +1,6 @@
 {
   "name": "@algolia/json-stream-analyzer",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "main": "index.js",
   "repository": "git@github.com:algolia/json-stream-analyzer.git",
   "author": "Jonathan Montane <jonathan.montane@algolia.com>",
