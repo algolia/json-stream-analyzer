@@ -1,6 +1,6 @@
 {
   "name": "@algolia/json-stream-analyzer",
-  "version": "0.2.6",
+  "version": "0.2.9",
   "main": "index.js",
   "repository": "git@github.com:algolia/json-stream-analyzer.git",
   "author": "Jonathan Montane <jonathan.montane@algolia.com>",
@@ -25,10 +25,10 @@
     "lint": "eslint --ext .ts src/",
     "lint:fix": "yarn lint -- --fix",
     "clean": "rm -rf dist/",
-    "pre-release": "yarn test && yarn build && cp package.json dist/ && npm publish --dry-run dist",
+    "pre-release": "yarn test && yarn build && cp package.json dist/ && npm publish --dry-run --access public dist",
     "re-link": "cd dist && (yarn unlink || echo 'no package to unlink') && yarn link && cd .. && yarn link @algolia/json-stream-analyzer",
     "pre-release-test": "yarn pre-release && yarn re-link && jest --config jest.pre-release.config.js",
-    "release": "(npm whoami || echo 'this command must be run from npm and not yarn') && yarn pre-release-test && yarn version && cp package.json dist/ && npm publish dist && git push origin master"
+    "release": "(npm whoami || echo 'this command must be run from npm and not yarn') && yarn pre-release-test && yarn version && cp package.json dist/ && npm publish --access public dist && git push origin master"
   },
   "engines": {
     "node": ">=10.0.0"
