@@ -1,11 +1,25 @@
 {
-  "extends": ["algolia/typescript", "plugin:import/typescript"],
+  "extends": [
+    "algolia/typescript",
+    "plugin:import/typescript"
+  ],
   "parser": "@typescript-eslint/parser",
   "env": {
     "jest": true
   },
-  "plugins": ["prettier", "@typescript-eslint"],
+  "plugins": [
+    "prettier",
+    "@typescript-eslint"
+  ],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "import/extensions": "off",
+    "import/namespace": "off",
+    "eslint-comments/disable-enable-pair": [
+      "error",
+      {
+        "allowWholeFile": true
+      }
+    ]
   }
 }

@@ -1,6 +1,6 @@
 import { TagCombiner } from '../interfaces';
 
-export const keepFirst: TagCombiner = thisTag => thisTag;
+export const keepFirst: TagCombiner = (thisTag) => thisTag;
 
 export const keepN: (limit: number) => TagCombiner = (limit: number) => (
   thisTag,
