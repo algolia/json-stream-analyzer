@@ -1,0 +1,51 @@
+{
+  "extends": [
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases",
+    ":ignoreUnstable",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":noUnscheduledUpdates",
+    ":ignoreModulesAndTests",
+    ":autodetectPinVersions",
+    "group:monorepos",
+    "group:recommended"
+  ],
+  "enabledManagers": [
+    "circleci",
+    "npm",
+    "nvm"
+  ],
+  "major": {
+    "automerge": false
+  },
+  "minor": {
+    "automerge": true
+  },
+  "patch": {
+    "automerge": true
+  },
+  "pin": {
+    "automerge": true
+  },
+  "separateMultipleMajor": true,
+  "schedule": "every weekend",
+  "reviewers": [],
+  "semanticCommitType": "chore",
+  "circleci": {
+    "enabled": true
+  },
+  "node": {
+    "supportPolicy": [
+      "lts_active"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "dependencyDashboard": true,
+  "stabilityDays": 1,
+  "prCreation": "not-pending",
+  "timezone": "Europe/Paris",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10
+}
