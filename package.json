@@ -20,7 +20,7 @@
     "typescript": "3.4.5"
   },
   "scripts": {
-    "test": "yarn lint && jest",
+    "test": "jest",
     "build": "yarn clean && tsc",
     "lint": "eslint --ext .ts src/",
     "lint:fix": "yarn lint -- --fix",
@@ -31,6 +31,6 @@
     "release": "(npm whoami || (echo 'this command must be run from npm and not yarn' && exit 1)) && yarn pre-release-test && yarn version && cp package.json dist/ && cp README.md dist/ && cp LICENSE dist/ && npm publish --access public dist && git push origin master"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=14.0.0"
   }
 }
