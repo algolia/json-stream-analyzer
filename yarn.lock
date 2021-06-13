@@ -1294,10 +1294,10 @@ eslint-config-algolia@13.4.0:
   resolved "https://registry.yarnpkg.com/eslint-config-algolia/-/eslint-config-algolia-13.4.0.tgz#d622ae33ca6129a712a3880efd6e7c7511f08207"
   integrity sha512-dSOlc6/XTvBTVBAfgqKrUpt3ej74yahYw04L6yvE+2q3mwS+/Pnp71L2xDaOhkyZD1VGf7FSoi6qrrJFq5zdhQ==
 
-eslint-config-prettier@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-5.1.0.tgz#bf29442e7c818236a77acfe2241ec991299f9bf1"
-  integrity sha512-+tpiaLm3wl6fPW5nq0dDyVowQM0FT61lAdWZ+sDWgk6kKzgbOnCDwlcbwI38cyCBhq+Z3ret5Iofp6/gZpO0zw==
+eslint-config-prettier@6.15.0:
+  version "6.15.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.15.0.tgz#7f93f6cb7d45a92f1537a70ecc06366e1ac6fed9"
+  integrity sha512-a1+kOYLR8wMGustcgAjdydMsQ2A/2ipRPwRKUmfYaSxc9ZPcrku080Ctl6zrZzZNs/U82MjSv+qKREkoq3bJaw==
   dependencies:
     get-stdin "^6.0.0"
 
