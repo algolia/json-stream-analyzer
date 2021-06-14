@@ -1,11 +1,39 @@
 {
-  "extends": ["algolia/typescript", "plugin:import/typescript"],
+  "extends": [
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:jest/style",
+    "algolia",
+    "algolia/jest",
+    "algolia/typescript"
+  ],
   "parser": "@typescript-eslint/parser",
   "env": {
     "jest": true
   },
-  "plugins": ["prettier", "@typescript-eslint"],
+  "settings": {
+    "import/extensions": [
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx"
+    ],
+    "import/parsers": {
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
+    }
+  },
+  "plugins": [
+    "prettier",
+    "@typescript-eslint"
+  ],
   "rules": {
-    "prettier/prettier": "error"
+    "import/extensions": [
+      "error",
+      "never"
+    ]
   }
 }
