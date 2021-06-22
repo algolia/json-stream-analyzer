@@ -1,28 +1,28 @@
-import { SchemaType, Diagnostic, Model } from '../interfaces';
 import convertToSchema from '../convert';
+import type { SchemaType, Diagnostic, Model } from '../interfaces';
 
 export class SimpleTagModel implements Model {
-  public tag: (record: any) => any;
-  public schema?: SchemaType;
+  tag: (record: any) => any;
+  schema?: SchemaType;
 
-  public constructor({ tag }: { tag: (record: any) => any }) {
+  constructor({ tag }: { tag: (record: any) => any }) {
     this.tag = tag;
   }
 
-  public convert = (record: any): SchemaType => {
+  convert = (record: any): SchemaType => {
     const tag = this.tag(record);
     return convertToSchema(record, tag);
   };
 
-  public combineTag = (firstTag: any): any => {
+  combineTag = (firstTag: any): any => {
     return firstTag;
   };
 
-  public combine = (first: SchemaType, second: SchemaType): SchemaType => {
+  combine = (first: SchemaType, second: SchemaType): SchemaType => {
     return first.combine(second, { combineTag: this.combineTag });
   };
 
-  public diagnose = (): Diagnostic[] => {
+  diagnose = (): Diagnostic[] => {
     if (this.schema) {
       return this.schema.diagnose();
     }
@@ -30,7 +30,7 @@ export class SimpleTagModel implements Model {
     return [];
   };
 
-  public diagnoseRecord = (record: any): Diagnostic[] => {
+  diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = this.tag(record);
     const recordSchema = convertToSchema(record, tag);
 
@@ -46,7 +46,7 @@ export class SimpleTagModel implements Model {
     });
   };
 
-  public addToModel = (record: any): void => {
+  addToModel = (record: any): void => {
     const recordModel = this.convert(record);
     if (!this.schema) {
       this.schema = recordModel;
@@ -55,7 +55,7 @@ export class SimpleTagModel implements Model {
     }
   };
 
-  public traverseSchema = (path: string[]) => {
+  traverseSchema = (path: string[]) => {
     if (!this.schema) {
       return { path, schema: this.schema };
     }

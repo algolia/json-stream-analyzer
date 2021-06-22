@@ -5,7 +5,7 @@ import { NullType } from './NullType';
 import { NumberType } from './NumberType';
 import { ObjectType } from './ObjectType';
 import { StringType } from './StringType';
-import { UnionType } from './UnionType';
+import type { UnionType } from './UnionType';
 
 describe('StringType simple test case', () => {
   describe('constructor', () => {

@@ -1,3 +1,5 @@
+import type { SchemaType } from '../interfaces';
+
 import { ArrayType } from './ArrayType';
 import { BooleanType } from './BooleanType';
 import { MissingType } from './MissingType';
@@ -5,8 +7,7 @@ import { NullType } from './NullType';
 import { NumberType } from './NumberType';
 import { ObjectType } from './ObjectType';
 import { StringType } from './StringType';
-import { UnionType } from './UnionType';
-import { SchemaType } from '../interfaces';
+import type { UnionType } from './UnionType';
 
 describe('BooleanType simple test case', () => {
   describe('constructor', () => {

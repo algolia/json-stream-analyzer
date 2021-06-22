@@ -1,4 +1,4 @@
-import { SchemaType, SchemaObject } from './interfaces';
+import type { SchemaType, SchemaObject } from './interfaces';
 import {
   ArrayType,
   BooleanType,

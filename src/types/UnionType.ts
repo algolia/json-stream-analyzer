@@ -1,4 +1,4 @@
-import {
+import type {
   Diagnostic,
   CombineOptions,
   SchemaTypeID,
@@ -16,9 +16,9 @@ const isMultiType = (types: string[]): boolean => {
 export class UnionType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
-   * Types like NumberType, StringType, ObjectType
+   * Types like NumberType, StringType, ObjectType.
    */
-  public type: SchemaTypeID;
+  type: SchemaTypeID;
 
   /**
    * A user-defined identifier that is used to label every node of the schema.
@@ -30,16 +30,16 @@ export class UnionType implements SchemaType {
    * the difference.
    *
    * Note: In the model, we will only ever keep only one tag on every node of the
-   * tree representation of the schema type
+   * tree representation of the schema type.
    */
-  public tag?: any;
+  tag?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
    * This is useful to measure how many times an attribute is Missing, and compare it to
    * how many times the parent object is present, for instance.
    */
-  public counter: number;
+  counter: number;
 
   /**
    * A dictionary that contains all the types present within the UnionType.
@@ -48,11 +48,11 @@ export class UnionType implements SchemaType {
    *   Number: <NumberType>,
    *   String: <StringType>,
    *   Null: <NullType>
-   * }
+   * }.
    */
-  public types: SchemaObject;
+  types: SchemaObject;
 
-  public constructor(
+  constructor(
     { counter = 0 }: SchemaTypeParams = { counter: 0 },
     types: SchemaObject = {}
   ) {
@@ -62,19 +62,21 @@ export class UnionType implements SchemaType {
   }
 
   /**
-   * A typeguard to ensure that another SchemaType is of the same type
-   * @param {SchemaType} other the schema to test
-   * @returns {boolean} whether the schema to test is a UnionType
+   * A typeguard to ensure that another SchemaType is of the same type.
+   *
+   * @param other - The schema to test.
+   * @returns Whether the schema to test is a UnionType.
    */
-  public isSameType(other: SchemaType): other is UnionType {
+  isSameType(other: SchemaType): other is UnionType {
     return other.type === this.type;
   }
 
   /**
-   * creates an immutable copy of the current UnionType with identical `.types`
-   * @returns {UnionType} the copy
+   * Creates an immutable copy of the current UnionType with identical `.types`.
+   *
+   * @returns The copy.
    */
-  public copy = (): UnionType => {
+  copy = (): UnionType => {
     const result = new UnionType();
 
     result.counter = this.counter;
@@ -88,7 +90,7 @@ export class UnionType implements SchemaType {
     return result;
   };
 
-  public combine = (
+  combine = (
     other: SchemaType,
     { counter, combineTag = keepFirst }: CombineOptions = {
       combineTag: keepFirst,
@@ -134,23 +136,11 @@ export class UnionType implements SchemaType {
     }
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore ts(2351)
+    // @ts-expect-error ts(2351)
     return new this.constructor({ counter: combinedCounter }, combinedTypes);
   };
 
-  private diagnoseChildren = (path: string[]) => {
-    return Object.entries(this.types).reduce(
-      (currentDiagnostics: Diagnostic[], [type, schema]) => {
-        return [
-          ...currentDiagnostics,
-          ...schema.diagnose([...path, `(${type})`]),
-        ];
-      },
-      []
-    );
-  };
-
-  public diagnose = (path: string[] = []) => {
+  diagnose = (path: string[] = []) => {
     let diagnostics: Diagnostic[] = [];
 
     if (this.types.Missing) {
@@ -216,7 +206,7 @@ export class UnionType implements SchemaType {
     return [...diagnostics, ...this.diagnoseChildren(path)];
   };
 
-  public traverse = (path: string[] = []) => {
+  traverse = (path: string[] = []) => {
     const invalidPathSchema: { path: string[]; schema: SchemaType } = {
       path: [],
       schema: this as SchemaType,
@@ -240,5 +230,17 @@ export class UnionType implements SchemaType {
     }
 
     return invalidPathSchema;
+  };
+
+  private diagnoseChildren = (path: string[]) => {
+    return Object.entries(this.types).reduce(
+      (currentDiagnostics: Diagnostic[], [type, schema]) => {
+        return [
+          ...currentDiagnostics,
+          ...schema.diagnose([...path, `(${type})`]),
+        ];
+      },
+      []
+    );
   };
 }
