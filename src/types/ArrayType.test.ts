@@ -1,4 +1,5 @@
 import convertToSchema from '../convert';
+import type { Diagnostic } from '../interfaces';
 
 import { ArrayType } from './ArrayType';
 import { BooleanType } from './BooleanType';
@@ -7,8 +8,7 @@ import { NullType } from './NullType';
 import { NumberType } from './NumberType';
 import { ObjectType } from './ObjectType';
 import { StringType } from './StringType';
-import { UnionType } from './UnionType';
-import { Diagnostic } from '../interfaces';
+import type { UnionType } from './UnionType';
 
 describe('ArrayType simple test case', () => {
   describe('constructor', () => {

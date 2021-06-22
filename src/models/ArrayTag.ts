@@ -1,28 +1,22 @@
-import { SchemaType, Diagnostic, Model } from '../interfaces';
 import convertToSchema from '../convert';
+import type { SchemaType, Diagnostic, Model } from '../interfaces';
 
 export class ArrayTagModel implements Model {
-  public tag: (record: any) => any;
+  tag: (record: any) => any;
+  schema?: SchemaType;
   private size: number;
-  public schema?: SchemaType;
 
-  public constructor({
-    tag,
-    size,
-  }: {
-    tag: (record: any) => any;
-    size: number;
-  }) {
+  constructor({ tag, size }: { tag: (record: any) => any; size: number }) {
     this.tag = tag;
     this.size = size;
   }
 
-  public convert = (record: any): SchemaType => {
+  convert = (record: any): SchemaType => {
     const tag = [this.tag(record)];
     return convertToSchema(record, tag);
   };
 
-  public combineTag = (thisTag: any, otherTag: any): any => {
+  combineTag = (thisTag: any, otherTag: any): any => {
     if (Array.isArray(thisTag) && thisTag.length >= this.size) {
       return thisTag;
     }
@@ -42,11 +36,11 @@ export class ArrayTagModel implements Model {
     return [thisTag, otherTag];
   };
 
-  public combine = (first: SchemaType, second: SchemaType): SchemaType => {
+  combine = (first: SchemaType, second: SchemaType): SchemaType => {
     return first.combine(second, { combineTag: this.combineTag });
   };
 
-  public diagnose = (): Diagnostic[] => {
+  diagnose = (): Diagnostic[] => {
     if (this.schema) {
       return this.schema.diagnose();
     }
@@ -54,7 +48,7 @@ export class ArrayTagModel implements Model {
     return [];
   };
 
-  public diagnoseRecord = (record: any): Diagnostic[] => {
+  diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = [this.tag(record)];
     const recordSchema = convertToSchema(record, tag);
 
@@ -78,7 +72,7 @@ export class ArrayTagModel implements Model {
     });
   };
 
-  public addToModel = (record: any): void => {
+  addToModel = (record: any): void => {
     const recordModel = this.convert(record);
     if (!this.schema) {
       this.schema = recordModel;
@@ -87,7 +81,7 @@ export class ArrayTagModel implements Model {
     }
   };
 
-  public traverseSchema = (path: string[]) => {
+  traverseSchema = (path: string[]) => {
     if (!this.schema) {
       return { path, schema: this.schema };
     }

@@ -24,7 +24,7 @@ export interface SchemaTypeParams {
 export interface SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
-   * Types like NumberType, StringType, ObjectType
+   * Types like NumberType, StringType, ObjectType.
    */
   type: SchemaTypeID;
 
@@ -38,7 +38,7 @@ export interface SchemaType {
    * the difference.
    *
    * Note: In the model, we will only ever keep only one tag on every node of the
-   * tree representation of the schema type
+   * tree representation of the schema type.
    */
   tag?: any;
 
@@ -52,20 +52,20 @@ export interface SchemaType {
   /**
    * Generic method to merge two SchemaType into a single model of the correct
    * type, and that can be overriden when a more advanced logic is needed
-   * (e.g. for Object, Arrays, etc.).
+   * (e.g. For Object, Arrays, etc.).
    *
    * If the 2 models are of the same type, we can safely merge them together,
-   * otherwise we combine them into a UnionType
+   * otherwise we combine them into a UnionType.
    *
    * Important: If you override this method to have a more specific combination
    * behaviour, it **MUST** first check that the types are identical, and combine
    * the two different SchemaTypes into a UnionType if they are not.
    *
-   * @param {SchemaType} other - the schema to combine it with
-   * @param {number} counter - the number of times the other schema was seen
-   * @param {TagCombiner} combineTag - a method used
+   * @param {SchemaType} other - The schema to combine it with.
+   * @param {number} counter - The number of times the other schema was seen.
+   * @param {TagCombiner} combineTag - A method used
    * to combine tags together. If unset, it uses a keep-first strategy.
-   * @returns {SchemaType} a SchemaType that is the combination of both models
+   * @returns {SchemaType} A SchemaType that is the combination of both models.
    */
   combine: (other: SchemaType, options?: CombineOptions) => SchemaType;
 
@@ -74,7 +74,8 @@ export interface SchemaType {
    * a more advanced logic is needed.
    *
    * For immutability purposes.
-   * @returns {SchemaType} the copy
+   *
+   * @returns {SchemaType} The copy.
    */
   copy: () => SchemaType;
 

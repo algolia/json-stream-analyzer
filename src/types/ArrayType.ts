@@ -1,4 +1,4 @@
-import {
+import type {
   SchemaTypeParams,
   Diagnostic,
   CombineOptions,
@@ -7,6 +7,7 @@ import {
   SchemaObject,
 } from '../interfaces';
 import { keepFirst } from '../tags/combiners';
+
 import { UnionType } from './UnionType';
 
 const isMultiType = (types: string[]): boolean => {
@@ -17,9 +18,9 @@ const isMultiType = (types: string[]): boolean => {
 export class ArrayType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
-   * Types like NumberType, StringType, ObjectType
+   * Types like NumberType, StringType, ObjectType.
    */
-  public type: SchemaTypeID;
+  type: SchemaTypeID;
 
   /**
    * A user-defined identifier that is used to label every node of the schema.
@@ -31,29 +32,29 @@ export class ArrayType implements SchemaType {
    * the difference.
    *
    * Note: In the model, we will only ever keep only one tag on every node of the
-   * tree representation of the schema type
+   * tree representation of the schema type.
    */
-  public tag?: any;
+  tag?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
    * This is useful to measure how many times an attribute is Missing, and compare it to
    * how many times the parent object is present, for instance.
    */
-  public counter: number;
+  counter: number;
 
   /**
    * A dictionary that contains all the types present in the ArrayType.
    *
    * Note: We use the Simplified Array Type representation for Arrays. This
    * means that we don't keep track of ordering of the elements in the array
-   * but only of the types present within. e.g. [1,2,3] and [1] will have the
+   * but only of the types present within. E.g. [1,2,3] and [1] will have the
    * same ArrayType. ['abc', 123] and [123, 'abc'] will also have the same
    * ArrayType.
    */
-  public types: SchemaObject;
+  types: SchemaObject;
 
-  public constructor(
+  constructor(
     { counter = 1, tag }: SchemaTypeParams = { counter: 1 },
     types: SchemaObject = {}
   ) {
@@ -64,19 +65,21 @@ export class ArrayType implements SchemaType {
   }
 
   /**
-   * A typeguard to ensure that another SchemaType is of the same type
-   * @param {SchemaType} other the schema to test
-   * @returns {boolean} whether the schema to test is an ArrayType
+   * A typeguard to ensure that another SchemaType is of the same type.
+   *
+   * @param other - The schema to test.
+   * @returns Whether the schema to test is an ArrayType.
    */
-  public isSameType(other: SchemaType): other is ArrayType {
+  isSameType(other: SchemaType): other is ArrayType {
     return other.type === this.type;
   }
 
   /**
-   * creates an immutable copy of the current ArrayType with identical `.types`
-   * @returns {ArrayType} the copy
+   * Creates an immutable copy of the current ArrayType with identical `.types`.
+   *
+   * @returns The copy.
    */
-  public copy = (): ArrayType => {
+  copy = (): ArrayType => {
     const result = new ArrayType({
       counter: this.counter,
       tag: this.tag,
@@ -91,7 +94,7 @@ export class ArrayType implements SchemaType {
     return result;
   };
 
-  public combine = (
+  combine = (
     other: SchemaType,
     { counter, combineTag = keepFirst }: CombineOptions = {
       combineTag: keepFirst,
@@ -136,7 +139,7 @@ export class ArrayType implements SchemaType {
     );
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore ts(2351)
+    // @ts-expect-error ts(2351)
     return new this.constructor(
       {
         counter: combinedCounter,
@@ -146,19 +149,7 @@ export class ArrayType implements SchemaType {
     );
   };
 
-  private diagnoseChildren = (path: string[]) => {
-    return Object.entries(this.types).reduce(
-      (currentDiagnostics: Diagnostic[], [type, schema]) => {
-        return [
-          ...currentDiagnostics,
-          ...schema.diagnose([...path, `[${type}]`]),
-        ];
-      },
-      []
-    );
-  };
-
-  public diagnose = (path: string[] = []): Diagnostic[] => {
+  diagnose = (path: string[] = []): Diagnostic[] => {
     const diagnostics: Diagnostic[] = [];
     let missingAffected = 0;
     if (this.types.Missing) {
@@ -208,7 +199,7 @@ export class ArrayType implements SchemaType {
     return [...diagnostics, ...this.diagnoseChildren(path)];
   };
 
-  public traverse = (path: string[] = []) => {
+  traverse = (path: string[] = []) => {
     const invalidPathSchema: { path: string[]; schema: SchemaType } = {
       path: [],
       schema: this as SchemaType,
@@ -232,5 +223,17 @@ export class ArrayType implements SchemaType {
     }
 
     return invalidPathSchema;
+  };
+
+  private diagnoseChildren = (path: string[]) => {
+    return Object.entries(this.types).reduce(
+      (currentDiagnostics: Diagnostic[], [type, schema]) => {
+        return [
+          ...currentDiagnostics,
+          ...schema.diagnose([...path, `[${type}]`]),
+        ];
+      },
+      []
+    );
   };
 }

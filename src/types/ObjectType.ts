@@ -1,4 +1,4 @@
-import {
+import type {
   SchemaTypeParams,
   Diagnostic,
   CombineOptions,
@@ -6,17 +6,17 @@ import {
   SchemaTypeID,
   SchemaObject,
 } from '../interfaces';
-
 import { keepFirst } from '../tags/combiners';
-import { UnionType } from './UnionType';
+
 import { MissingType } from './MissingType';
+import { UnionType } from './UnionType';
 
 export class ObjectType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
-   * Types like NumberType, StringType, ObjectType
+   * Types like NumberType, StringType, ObjectType.
    */
-  public type: SchemaTypeID;
+  type: SchemaTypeID;
 
   /**
    * A user-defined identifier that is used to label every node of the schema.
@@ -28,16 +28,16 @@ export class ObjectType implements SchemaType {
    * the difference.
    *
    * Note: In the model, we will only ever keep only one tag on every node of the
-   * tree representation of the schema type
+   * tree representation of the schema type.
    */
-  public tag?: any;
+  tag?: any;
 
   /**
    * A simple counter that counts how many times this part of the model was combined.
    * This is useful to measure how many times an attribute is Missing, and compare it to
    * how many times the parent object is present, for instance.
    */
-  public counter: number;
+  counter: number;
 
   /**
    * An object that contains the SchemaTypes associated with each attribute
@@ -45,11 +45,11 @@ export class ObjectType implements SchemaType {
    * { a: 1, b: true } would have the following `.schema` {
    *   a: <StringType>,
    *   b: <BooleanType>
-   * }
+   * }.
    */
-  public schema: SchemaObject;
+  schema: SchemaObject;
 
-  public constructor(
+  constructor(
     { counter = 1, tag }: SchemaTypeParams = { counter: 1 },
     schema: SchemaObject = {}
   ) {
@@ -60,19 +60,21 @@ export class ObjectType implements SchemaType {
   }
 
   /**
-   * A typeguard to ensure that another SchemaType is of the same type
-   * @param {SchemaType} other the schema to test
-   * @returns {boolean} whether the schema to test is an ObjectType
+   * A typeguard to ensure that another SchemaType is of the same type.
+   *
+   * @param other - The schema to test.
+   * @returns Whether the schema to test is an ObjectType.
    */
-  public isSameType(other: SchemaType): other is ObjectType {
+  isSameType(other: SchemaType): other is ObjectType {
     return other.type === this.type;
   }
 
   /**
-   * creates an immutable copy of the current ObjectType with identical `.schema`
-   * @returns {ObjectType} the copy
+   * Creates an immutable copy of the current ObjectType with identical `.schema`.
+   *
+   * @returns The copy.
    */
-  public copy = (): ObjectType => {
+  copy = (): ObjectType => {
     const result = new ObjectType({
       counter: this.counter,
       tag: this.tag,
@@ -87,7 +89,7 @@ export class ObjectType implements SchemaType {
     return result;
   };
 
-  public combine = (
+  combine = (
     other: SchemaType,
     { counter, combineTag = keepFirst }: CombineOptions = {
       combineTag: keepFirst,
@@ -106,7 +108,7 @@ export class ObjectType implements SchemaType {
      * In the case where the attribute exists in both schemas, we need to combine
      * both of its model into one first. Otherwise, we need to combine the unique
      * model we found with a MissingType model of the correct size (counter) and
-     * identifier (tag)
+     * identifier (tag).
      */
     let combinedSchema = Object.entries(other.schema).reduce(
       (partial: SchemaObject, [key, schema]) => {
@@ -150,7 +152,7 @@ export class ObjectType implements SchemaType {
     );
 
     const combinedCounter = counter || this.counter + other.counter;
-    // @ts-ignore ts(2351)
+    // @ts-expect-error ts(2351)
     return new this.constructor(
       {
         counter: combinedCounter,
@@ -160,12 +162,11 @@ export class ObjectType implements SchemaType {
     );
   };
 
-  public diagnose = (path: string[] = []) => {
+  diagnose = (path: string[] = []) => {
     let diagnostics: Diagnostic[] = [];
 
     const numericalKeys = Object.entries(this.schema)
       .filter(([key]) => !Number.isNaN(parseFloat(key)))
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .map(([_, value]) => value);
 
     if (numericalKeys.length) {
@@ -194,7 +195,7 @@ export class ObjectType implements SchemaType {
     );
   };
 
-  public traverse = (path: string[] = []) => {
+  traverse = (path: string[] = []) => {
     const invalidPathSchema: { path: string[]; schema: SchemaType } = {
       path: [],
       schema: this as SchemaType,
