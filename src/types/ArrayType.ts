@@ -99,7 +99,7 @@ export class ArrayType implements SchemaType {
     { counter, combineTag = keepFirst }: CombineOptions = {
       combineTag: keepFirst,
     }
-  ): UnionType | ArrayType => {
+  ): ArrayType | UnionType => {
     if (!this.isSameType(other)) {
       return new UnionType()
         .combine(this, { counter, combineTag })
