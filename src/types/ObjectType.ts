@@ -94,7 +94,7 @@ export class ObjectType implements SchemaType {
     { counter, combineTag = keepFirst }: CombineOptions = {
       combineTag: keepFirst,
     }
-  ): UnionType | ObjectType => {
+  ): ObjectType | UnionType => {
     if (!this.isSameType(other)) {
       return new UnionType()
         .combine(this, { counter, combineTag })

@@ -1,9 +1,5 @@
 {
   "extends": [
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript",
-    "plugin:jest/style",
     "algolia",
     "algolia/jest",
     "algolia/typescript"

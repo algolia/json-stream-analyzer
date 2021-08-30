@@ -6,15 +6,15 @@ export interface CombineOptions {
 }
 
 export type SchemaTypeID =
-  | 'unknownType'
-  | 'String'
-  | 'Boolean'
-  | 'Number'
-  | 'Null'
-  | 'Missing'
-  | 'Object'
   | 'Array'
-  | 'Union';
+  | 'Boolean'
+  | 'Missing'
+  | 'Null'
+  | 'Number'
+  | 'Object'
+  | 'String'
+  | 'Union'
+  | 'unknownType';
 
 export interface SchemaTypeParams {
   counter?: number;
@@ -89,12 +89,12 @@ export interface SchemaObject {
 }
 
 export type DiagnosticID =
-  | 'healthy'
-  | 'missing'
   | 'emptyArray'
+  | 'healthy'
   | 'inconsistentType'
-  | 'polymorphicArray'
-  | 'numericalKeyOnObject';
+  | 'missing'
+  | 'numericalKeyOnObject'
+  | 'polymorphicArray';
 
 export interface Diagnostic {
   id: DiagnosticID;
