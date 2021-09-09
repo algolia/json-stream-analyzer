@@ -3105,6 +3105,11 @@ regextras@^0.8.0:
   resolved "https://registry.yarnpkg.com/regextras/-/regextras-0.8.0.tgz#ec0f99853d4912839321172f608b544814b02217"
   integrity sha512-k519uI04Z3SaY0fLX843MRXnDeG2+vHOFsyhiPZvNLe7r8rD2YNRjq4BQLZZ0oAr2NrtvZlICsXysGNFPGa3CQ==
 
+renovate-config-algolia@2.1.5:
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/renovate-config-algolia/-/renovate-config-algolia-2.1.5.tgz#42f9aa1ccab9410d1580aef9b6ea3a5568a9d208"
+  integrity sha512-oGA1FCgKt5vY6CUVemO6GAWSW2ChuSnAOUHxSec/t6WU2N5/fuwSawTWQJArMUhyhP1WHSB9GuuAPlG8QaBvjQ==
+
 require-directory@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
