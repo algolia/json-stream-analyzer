@@ -12,13 +12,13 @@ describe('UnionType simple test case', () => {
     it('has type Union', () => {
       const b1 = new UnionType();
 
-      expect(b1.type).toEqual('Union');
+      expect(b1.type).toBe('Union');
     });
 
     it('has counter set to 0', () => {
       const b1 = new UnionType();
 
-      expect(b1.counter).toEqual(0);
+      expect(b1.counter).toBe(0);
     });
   });
 
@@ -29,8 +29,8 @@ describe('UnionType simple test case', () => {
 
       const combined = b1.combine(b2);
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(0);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(0);
     });
 
     it('combine does not mutate inputs', () => {
@@ -39,10 +39,10 @@ describe('UnionType simple test case', () => {
 
       b1.combine(b2);
 
-      expect(b1.type).toEqual('Union');
-      expect(b2.type).toEqual('Union');
-      expect(b1.counter).toEqual(0);
-      expect(b2.counter).toEqual(0);
+      expect(b1.type).toBe('Union');
+      expect(b2.type).toBe('Union');
+      expect(b1.counter).toBe(0);
+      expect(b2.counter).toBe(0);
     });
 
     it('combine can be chained', () => {
@@ -57,64 +57,64 @@ describe('UnionType simple test case', () => {
         .combine(new UnionType())
         .combine(new UnionType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(0);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(0);
     });
 
     it('can combine with MissingType', () => {
       const combined: UnionType = new UnionType().combine(new MissingType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Missing.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Missing.counter).toBe(1);
     });
 
     it('can combine with StringType', () => {
       const combined: UnionType = new UnionType().combine(new StringType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.String.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.String.counter).toBe(1);
     });
 
     it('can combine with NullType', () => {
       const combined = new UnionType().combine(new NullType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Null.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Null.counter).toBe(1);
     });
 
     it('can combine with ObjectType', () => {
       const combined = new UnionType().combine(new ObjectType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Object.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Object.counter).toBe(1);
     });
 
     it('can combine with NumberType', () => {
       const combined = new UnionType().combine(new NumberType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Number.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Number.counter).toBe(1);
     });
 
     it('can combine with BooleanType', () => {
       const combined = new UnionType().combine(new BooleanType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Boolean.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Boolean.counter).toBe(1);
     });
 
     it('can combine with ArrayType', () => {
       const combined = new UnionType().combine(new ArrayType());
 
-      expect(combined.type).toEqual('Union');
-      expect(combined.counter).toEqual(1);
-      expect(combined.types.Array.counter).toEqual(1);
+      expect(combined.type).toBe('Union');
+      expect(combined.counter).toBe(1);
+      expect(combined.types.Array.counter).toBe(1);
     });
   });
 });
