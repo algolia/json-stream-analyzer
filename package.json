@@ -5,7 +5,7 @@
   "repository": "git@github.com:algolia/json-stream-analyzer.git",
   "author": "Jonathan Montane <jonathan.montane@algolia.com>",
   "devDependencies": {
-    "@types/jest": "27.0.2",
+    "@types/jest": "27.0.3",
     "@typescript-eslint/eslint-plugin": "5.4.0",
     "@typescript-eslint/parser": "5.4.0",
     "babel-eslint": "10.1.0",
