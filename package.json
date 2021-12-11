@@ -6,8 +6,8 @@
   "author": "Jonathan Montane <jonathan.montane@algolia.com>",
   "devDependencies": {
     "@types/jest": "27.0.3",
-    "@typescript-eslint/eslint-plugin": "5.5.0",
-    "@typescript-eslint/parser": "5.5.0",
+    "@typescript-eslint/eslint-plugin": "5.6.0",
+    "@typescript-eslint/parser": "5.6.0",
     "babel-eslint": "10.1.0",
     "eslint": "8.4.1",
     "eslint-config-algolia": "19.0.2",
