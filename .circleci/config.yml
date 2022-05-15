@@ -7,7 +7,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/node:14.19.0
+      - image: cimg/node:14.19.2
 
     working_directory: ~/repo
 
