@@ -42,6 +42,19 @@ describe('ArrayType simple test case', () => {
       expect(combined.counter).toBe(2);
     });
 
+    it('combines lengths', () => {
+      const b1 = new ArrayType({ stats: { lengths: { 1: 1 } } });
+      const b2 = new ArrayType({ stats: { lengths: { 2: 1 } } });
+      const b3 = new ArrayType({ stats: { lengths: { 2: 1 } } });
+
+      let combined = b1.combine(b2) as ArrayType;
+      combined = combined.combine(b3) as ArrayType;
+
+      expect(combined.type).toBe('Array');
+      expect(combined.counter).toBe(3);
+      expect(combined.stats).toStrictEqual({ lengths: { 1: 1, 2: 2 } });
+    });
+
     it('combine does not mutate inputs', () => {
       const b1 = new ArrayType();
       const b2 = new ArrayType();
@@ -128,12 +141,27 @@ describe('ArrayType simple test case', () => {
 
 describe('Simple Array Type test case', () => {
   it('defines correct schema for string arrays', () => {
+    const converted = convertToSchema(['someText', 'someText'], undefined, {
+      collectStatistics: {
+        array: true,
+      },
+    }) as ArrayType;
+
+    expect(converted.type).toBe('Array');
+    expect(converted.types.String).toBeDefined();
+    expect(converted.types.String.counter).toBe(1);
+    expect(converted.counter).toBe(1);
+    expect(converted.stats).toStrictEqual({ lengths: { 2: 1 } });
+  });
+
+  it('ignore array length by default', () => {
     const converted = convertToSchema(['someText', 'someText']) as ArrayType;
 
     expect(converted.type).toBe('Array');
     expect(converted.types.String).toBeDefined();
     expect(converted.types.String.counter).toBe(1);
     expect(converted.counter).toBe(1);
+    expect(converted.stats).toStrictEqual({ lengths: {} });
   });
 
   it('defines correct schema for boolean arrays', () => {

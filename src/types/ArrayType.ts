@@ -15,6 +15,10 @@ const isMultiType = (types: string[]): boolean => {
   return types.length > 2;
 };
 
+export interface ArrayStatistics {
+  lengths: Record<number, number>;
+}
+
 export class ArrayType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
@@ -54,18 +58,27 @@ export class ArrayType implements SchemaType {
    */
   types: SchemaObject;
 
+  stats: ArrayStatistics;
+
   constructor(
-    { counter = 1, tag }: SchemaTypeParams = { counter: 1 },
+    {
+      counter = 1,
+      tag,
+      stats,
+    }: SchemaTypeParams & { stats?: ArrayStatistics } = {
+      counter: 1,
+    },
     types: SchemaObject = {}
   ) {
     this.counter = counter;
     this.tag = tag;
     this.type = 'Array';
     this.types = types;
+    this.stats = stats || { lengths: {} };
   }
 
   /**
-   * A typeguard to ensure that another SchemaType is of the same type.
+   * A type guard to ensure that another SchemaType is of the same type.
    *
    * @param other - The schema to test.
    * @returns Whether the schema to test is an ArrayType.
@@ -83,6 +96,7 @@ export class ArrayType implements SchemaType {
     const result = new ArrayType({
       counter: this.counter,
       tag: this.tag,
+      stats: { ...this.stats },
     });
     result.types = Object.entries(this.types).reduce(
       (partial: SchemaObject, [key, schema]) => {
@@ -139,11 +153,18 @@ export class ArrayType implements SchemaType {
     );
 
     const combinedCounter = counter || this.counter + other.counter;
+    const combinedStats = { ...this.stats };
+    for (const [key, val] of Object.entries(other.stats.lengths)) {
+      const keyN = key as unknown as number;
+      combinedStats.lengths[keyN] = (combinedStats.lengths[keyN] || 0) + val;
+    }
+
     // @ts-expect-error ts(2351)
     return new this.constructor(
       {
         counter: combinedCounter,
         tag: combineTag(this.tag, other.tag),
+        stats: combinedStats,
       },
       combinedTypes
     );

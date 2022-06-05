@@ -1,4 +1,4 @@
-import type { SchemaType, SchemaObject } from './interfaces';
+import type { SchemaType, SchemaObject, ModelOptions } from './interfaces';
 import {
   ArrayType,
   BooleanType,
@@ -9,7 +9,11 @@ import {
   StringType,
 } from './types';
 
-const convertToSchema = (content: any, tag?: any): SchemaType => {
+const convertToSchema = (
+  content: any,
+  tag?: any,
+  options?: ModelOptions
+): SchemaType => {
   if (typeof content === 'number') {
     return new NumberType({ counter: 1, tag });
   }
@@ -46,7 +50,16 @@ const convertToSchema = (content: any, tag?: any): SchemaType => {
         return { ...partial, ...update };
       }, {});
     }
-    return new ArrayType({ counter: 1, tag }, types);
+    return new ArrayType(
+      {
+        counter: 1,
+        tag,
+        stats: options?.collectStatistics?.array
+          ? { lengths: { [content.length]: 1 } }
+          : undefined,
+      },
+      types
+    );
   }
 
   const schema: SchemaObject = Object.entries(content).reduce(

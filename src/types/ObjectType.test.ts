@@ -148,6 +148,7 @@ describe('ObjectType schema test case', () => {
       const expectedSchema = {
         someNums: {
           type: 'Array',
+          stats: { lengths: {} },
           counter: 1,
           types: {
             Number: {
@@ -211,6 +212,7 @@ describe('ObjectType schema test case', () => {
       const expectedSchema = {
         someNums: {
           type: 'Array',
+          stats: { lengths: {} },
           counter: 2,
           tag: 'm1',
           types: {
@@ -270,6 +272,7 @@ describe('ObjectType schema test case', () => {
               schema: {
                 tests: {
                   type: 'Array',
+                  stats: { lengths: {} },
                   counter: 1,
                   tag: 'm2',
                   types: {
@@ -323,6 +326,7 @@ describe('ObjectType schema test case', () => {
             types: {
               Array: {
                 type: 'Array',
+                stats: { lengths: {} },
                 counter: 1,
                 types: {
                   Object: {

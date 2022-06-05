@@ -1,17 +1,26 @@
 import convertToSchema from '../convert';
-import type { SchemaType, Diagnostic, Model } from '../interfaces';
+import type {
+  SchemaType,
+  Diagnostic,
+  Model,
+  ModelOptions,
+  ModelArgs,
+} from '../interfaces';
 
 export class SimpleTagModel implements Model {
-  tag: (record: any) => any;
+  options: ModelOptions;
   schema?: SchemaType;
 
-  constructor({ tag }: { tag: (record: any) => any }) {
-    this.tag = tag;
+  constructor(options: ModelArgs & ModelOptions) {
+    this.options = options;
+    this.tag = options.tag;
   }
+
+  tag: ModelArgs['tag'] = () => null;
 
   convert = (record: any): SchemaType => {
     const tag = this.tag(record);
-    return convertToSchema(record, tag);
+    return convertToSchema(record, tag, this.options);
   };
 
   combineTag = (firstTag: any): any => {
@@ -32,7 +41,7 @@ export class SimpleTagModel implements Model {
 
   diagnoseRecord = (record: any): Diagnostic[] => {
     const tag = this.tag(record);
-    const recordSchema = convertToSchema(record, tag);
+    const recordSchema = convertToSchema(record, tag, this.options);
 
     let combined;
     if (this.schema) {
@@ -55,7 +64,7 @@ export class SimpleTagModel implements Model {
     }
   };
 
-  traverseSchema = (path: string[]) => {
+  traverseSchema = (path: string[]): ReturnType<SchemaType['traverse']> => {
     if (!this.schema) {
       return { path, schema: this.schema };
     }
