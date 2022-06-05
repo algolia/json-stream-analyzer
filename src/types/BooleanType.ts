@@ -9,6 +9,10 @@ import { keepFirst } from '../tags/combiners';
 
 import { UnionType } from './UnionType';
 
+export interface BooleanStatistics {
+  trueVal: number;
+}
+
 export class BooleanType implements SchemaType {
   /**
    * Unique type ID that can be used to discriminate between different Schema
@@ -37,22 +41,43 @@ export class BooleanType implements SchemaType {
    */
   counter: number;
 
-  constructor({ counter = 1, tag }: SchemaTypeParams = { counter: 1 }) {
+  stats: BooleanStatistics;
+
+  constructor(
+    {
+      counter = 1,
+      tag,
+      stats,
+    }: SchemaTypeParams & { stats?: BooleanStatistics } = {
+      counter: 1,
+    }
+  ) {
     this.counter = counter;
     this.tag = tag;
     this.type = 'Boolean';
+    this.stats = stats || { trueVal: 0 };
+  }
+
+  /**
+   * A type guard to ensure that another SchemaType is of the same type.
+   *
+   * @param other - The schema to test.
+   * @returns Whether the schema to test is an BooleanType.
+   */
+  isSameType(other: SchemaType): other is BooleanType {
+    return other.type === this.type;
   }
 
   /**
    * Generic method to merge two SchemaType into a single model of the correct
-   * type, and that can be overriden when a more advanced logic is needed
+   * type, and that can be overridden when a more advanced logic is needed
    * (e.g. For Object, Arrays, etc.).
    *
    * If the 2 models are of the same type, we can safely merge them together,
    * otherwise we combine them into a UnionType.
    *
    * Important: If you override this method to have a more specific combination
-   * behaviour, it **MUST** first check that the types are identical, and combine
+   * behavior, it **MUST** first check that the types are identical, and combine
    * the two different SchemaTypes into a UnionType if they are not.
    *
    * @param other - The schema to combine it with.
@@ -68,11 +93,15 @@ export class BooleanType implements SchemaType {
       combineTag: keepFirst,
     }
   ): SchemaType => {
-    if (other.type === this.type) {
+    if (this.isSameType(other)) {
+      const combinedStats = { ...this.stats };
+      combinedStats.trueVal += other.stats.trueVal;
+
       // @ts-expect-error ts(2351)
       const result = new other.constructor({
         counter: counter || this.counter + other.counter,
         tag: combineTag(this.tag, other.tag),
+        stats: combinedStats,
       });
       return result;
     }
@@ -84,7 +113,7 @@ export class BooleanType implements SchemaType {
   };
 
   /**
-   * Generic method to create a copy of the current model. It is overriden when
+   * Generic method to create a copy of the current model. It is overridden when
    * a more advanced logic is needed.
    *
    * For immutability purposes.
@@ -93,7 +122,11 @@ export class BooleanType implements SchemaType {
    */
   copy = () => {
     // @ts-expect-error ts(2351)
-    return new this.constructor({ counter: this.counter, tag: this.tag });
+    return new this.constructor({
+      counter: this.counter,
+      tag: this.tag,
+      stats: { ...this.stats },
+    });
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

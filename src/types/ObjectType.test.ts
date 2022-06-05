@@ -160,6 +160,7 @@ describe('ObjectType schema test case', () => {
         isSimple: {
           type: 'Boolean',
           counter: 1,
+          stats: { trueVal: 0 },
         },
         nested: {
           type: 'Object',
@@ -235,6 +236,7 @@ describe('ObjectType schema test case', () => {
             Boolean: {
               type: 'Boolean',
               counter: 1,
+              stats: { trueVal: 0 },
               tag: 'm1',
             },
           },
@@ -279,6 +281,7 @@ describe('ObjectType schema test case', () => {
                     Boolean: {
                       type: 'Boolean',
                       counter: 1,
+                      stats: { trueVal: 0 },
                       tag: 'm2',
                     },
                   },
