@@ -1,4 +1,5 @@
 import convertToSchema from './convert';
+import type { ObjectType } from './types';
 
 describe('convertToSchema', () => {
   it('transforms Array into ArrayType', () => {
@@ -41,5 +42,46 @@ describe('convertToSchema', () => {
 
     expect(converted.type).toBe('Object');
     expect(converted.counter).toBe(1);
+  });
+});
+
+describe('statistics', () => {
+  it('should collect statistics', () => {
+    const options = { collectStatistics: { array: true, boolean: true } };
+    const converted = convertToSchema(
+      { bool: true, arr: ['foo', 'bar'] },
+      undefined,
+      options
+    ) as ObjectType;
+
+    expect(converted.type).toBe('Object');
+
+    const simplifiedSchema = JSON.parse(JSON.stringify(converted.schema));
+    expect(simplifiedSchema).toMatchInlineSnapshot(`
+      Object {
+        "arr": Object {
+          "counter": 1,
+          "stats": Object {
+            "lengths": Object {
+              "2": 1,
+            },
+          },
+          "type": "Array",
+          "types": Object {
+            "String": Object {
+              "counter": 1,
+              "type": "String",
+            },
+          },
+        },
+        "bool": Object {
+          "counter": 1,
+          "stats": Object {
+            "trueVal": 1,
+          },
+          "type": "Boolean",
+        },
+      }
+    `);
   });
 });

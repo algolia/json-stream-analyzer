@@ -19,7 +19,13 @@ const convertToSchema = (
   }
 
   if (typeof content === 'boolean') {
-    return new BooleanType({ counter: 1, tag });
+    return new BooleanType({
+      counter: 1,
+      tag,
+      stats: options?.collectStatistics?.boolean
+        ? { trueVal: content === true ? 1 : 0 }
+        : undefined,
+    });
   }
 
   if (typeof content === 'string') {
@@ -37,7 +43,7 @@ const convertToSchema = (
       types = { Missing: new MissingType({ counter: 1, tag }) };
     } else {
       types = content.reduce((partial, item) => {
-        const schema = convertToSchema(item, tag);
+        const schema = convertToSchema(item, tag, options);
         const update: SchemaObject = {};
         if (partial[schema.type]) {
           update[schema.type] = partial[schema.type].combine(schema, {
@@ -64,7 +70,7 @@ const convertToSchema = (
 
   const schema: SchemaObject = Object.entries(content).reduce(
     (schemas: SchemaObject, [key, subContent]) => {
-      return { ...schemas, [key]: convertToSchema(subContent, tag) };
+      return { ...schemas, [key]: convertToSchema(subContent, tag, options) };
     },
     {}
   );
