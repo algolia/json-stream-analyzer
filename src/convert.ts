@@ -12,8 +12,14 @@ import {
 const convertToSchema = (
   content: any,
   tag?: any,
-  options?: ModelOptions
+  options?: ModelOptions,
+  path: string[] = []
 ): SchemaType => {
+  if (options?.modifier) {
+    // eslint-disable-next-line no-param-reassign
+    content = options.modifier(path, content);
+  }
+
   if (typeof content === 'number') {
     return new NumberType({ counter: 1, tag });
   }
@@ -43,7 +49,7 @@ const convertToSchema = (
       types = { Missing: new MissingType({ counter: 1, tag }) };
     } else {
       types = content.reduce((partial, item) => {
-        const schema = convertToSchema(item, tag, options);
+        const schema = convertToSchema(item, tag, options, [...path]);
         const update: SchemaObject = {};
         if (partial[schema.type]) {
           update[schema.type] = partial[schema.type].combine(schema, {
@@ -56,6 +62,7 @@ const convertToSchema = (
         return { ...partial, ...update };
       }, {});
     }
+
     return new ArrayType(
       {
         counter: 1,
@@ -70,7 +77,10 @@ const convertToSchema = (
 
   const schema: SchemaObject = Object.entries(content).reduce(
     (schemas: SchemaObject, [key, subContent]) => {
-      return { ...schemas, [key]: convertToSchema(subContent, tag, options) };
+      return {
+        ...schemas,
+        [key]: convertToSchema(subContent, tag, options, [...path, key]),
+      };
     },
     {}
   );

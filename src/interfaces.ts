@@ -125,4 +125,5 @@ export interface ModelOptions {
     array?: boolean;
     boolean?: boolean;
   };
+  modifier?: (path: string[], node: any) => any;
 }
