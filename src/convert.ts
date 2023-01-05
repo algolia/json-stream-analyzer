@@ -1,4 +1,4 @@
-import type { SchemaType, SchemaObject } from './interfaces';
+import type { SchemaType, SchemaObject, ModelOptions } from './interfaces';
 import {
   ArrayType,
   BooleanType,
@@ -9,13 +9,29 @@ import {
   StringType,
 } from './types';
 
-const convertToSchema = (content: any, tag?: any): SchemaType => {
+const convertToSchema = (
+  content: any,
+  tag?: any,
+  options?: ModelOptions,
+  path: string[] = []
+): SchemaType => {
+  if (options?.modifier) {
+    // eslint-disable-next-line no-param-reassign
+    content = options.modifier(path, content);
+  }
+
   if (typeof content === 'number') {
     return new NumberType({ counter: 1, tag });
   }
 
   if (typeof content === 'boolean') {
-    return new BooleanType({ counter: 1, tag });
+    return new BooleanType({
+      counter: 1,
+      tag,
+      stats: options?.collectStatistics?.boolean
+        ? { trueVal: content === true ? 1 : 0 }
+        : undefined,
+    });
   }
 
   if (typeof content === 'string') {
@@ -33,7 +49,7 @@ const convertToSchema = (content: any, tag?: any): SchemaType => {
       types = { Missing: new MissingType({ counter: 1, tag }) };
     } else {
       types = content.reduce((partial, item) => {
-        const schema = convertToSchema(item, tag);
+        const schema = convertToSchema(item, tag, options, [...path]);
         const update: SchemaObject = {};
         if (partial[schema.type]) {
           update[schema.type] = partial[schema.type].combine(schema, {
@@ -46,12 +62,25 @@ const convertToSchema = (content: any, tag?: any): SchemaType => {
         return { ...partial, ...update };
       }, {});
     }
-    return new ArrayType({ counter: 1, tag }, types);
+
+    return new ArrayType(
+      {
+        counter: 1,
+        tag,
+        stats: options?.collectStatistics?.array
+          ? { lengths: { [content.length]: 1 } }
+          : undefined,
+      },
+      types
+    );
   }
 
   const schema: SchemaObject = Object.entries(content).reduce(
     (schemas: SchemaObject, [key, subContent]) => {
-      return { ...schemas, [key]: convertToSchema(subContent, tag) };
+      return {
+        ...schemas,
+        [key]: convertToSchema(subContent, tag, options, [...path, key]),
+      };
     },
     {}
   );

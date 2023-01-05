@@ -150,5 +150,14 @@ describe('BooleanType simple test case', () => {
       expect(combined.types.Boolean.counter).toBe(1);
       expect(combined.types.Missing.counter).toBe(1);
     });
+
+    it('should combine stats', () => {
+      const b1 = new BooleanType({ counter: 2, stats: { trueVal: 2 } });
+      const b2 = new BooleanType({ counter: 1, stats: { trueVal: 0 } });
+
+      const combined = b1.combine(b2) as BooleanType;
+
+      expect(combined.stats).toStrictEqual({ trueVal: 2 });
+    });
   });
 });

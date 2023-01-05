@@ -1,4 +1,6 @@
 import convertToSchema from './convert';
+import type { ModelOptions } from './interfaces';
+import type { ObjectType } from './types';
 
 describe('convertToSchema', () => {
   it('transforms Array into ArrayType', () => {
@@ -41,5 +43,118 @@ describe('convertToSchema', () => {
 
     expect(converted.type).toBe('Object');
     expect(converted.counter).toBe(1);
+  });
+});
+
+describe('statistics', () => {
+  it('should collect statistics', () => {
+    const options: ModelOptions = {
+      collectStatistics: { array: true, boolean: true },
+    };
+    const converted = convertToSchema(
+      { bool: true, arr: ['foo', 'bar'] },
+      undefined,
+      options
+    ) as ObjectType;
+
+    expect(converted.type).toBe('Object');
+
+    const simplifiedSchema = JSON.parse(JSON.stringify(converted.schema));
+    expect(simplifiedSchema).toMatchInlineSnapshot(`
+      Object {
+        "arr": Object {
+          "counter": 1,
+          "stats": Object {
+            "lengths": Object {
+              "2": 1,
+            },
+          },
+          "type": "Array",
+          "types": Object {
+            "String": Object {
+              "counter": 1,
+              "type": "String",
+            },
+          },
+        },
+        "bool": Object {
+          "counter": 1,
+          "stats": Object {
+            "trueVal": 1,
+          },
+          "type": "Boolean",
+        },
+      }
+    `);
+  });
+});
+
+describe('modifiers', () => {
+  it('should allow modification of object', () => {
+    const options: ModelOptions = {
+      modifier: (path, content) => {
+        if (
+          path.length !== 1 ||
+          path[0] !== 'foo' ||
+          typeof content !== 'object'
+        ) {
+          return content;
+        }
+
+        let copy: Record<string, any> = {};
+        for (const [key, val] of Object.entries(content)) {
+          if (typeof val === 'object') {
+            copy = { ...copy, ...val };
+          } else {
+            copy[key] = val;
+          }
+        }
+        return copy;
+      },
+    };
+    const converted = convertToSchema(
+      {
+        foo: {
+          shouldRemove: {
+            foo: 2,
+          },
+          alsoRemove: {
+            bar: 1,
+          },
+          notRemoved: true,
+        },
+      },
+      undefined,
+      options
+    ) as ObjectType;
+
+    expect(converted.type).toBe('Object');
+
+    const simplifiedSchema = JSON.parse(JSON.stringify(converted.schema));
+    expect(simplifiedSchema).toMatchInlineSnapshot(`
+      Object {
+        "foo": Object {
+          "counter": 1,
+          "schema": Object {
+            "bar": Object {
+              "counter": 1,
+              "type": "Number",
+            },
+            "foo": Object {
+              "counter": 1,
+              "type": "Number",
+            },
+            "notRemoved": Object {
+              "counter": 1,
+              "stats": Object {
+                "trueVal": 0,
+              },
+              "type": "Boolean",
+            },
+          },
+          "type": "Object",
+        },
+      }
+    `);
   });
 });

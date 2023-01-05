@@ -148,6 +148,7 @@ describe('ObjectType schema test case', () => {
       const expectedSchema = {
         someNums: {
           type: 'Array',
+          stats: { lengths: {} },
           counter: 1,
           types: {
             Number: {
@@ -159,6 +160,7 @@ describe('ObjectType schema test case', () => {
         isSimple: {
           type: 'Boolean',
           counter: 1,
+          stats: { trueVal: 0 },
         },
         nested: {
           type: 'Object',
@@ -211,6 +213,7 @@ describe('ObjectType schema test case', () => {
       const expectedSchema = {
         someNums: {
           type: 'Array',
+          stats: { lengths: {} },
           counter: 2,
           tag: 'm1',
           types: {
@@ -233,6 +236,7 @@ describe('ObjectType schema test case', () => {
             Boolean: {
               type: 'Boolean',
               counter: 1,
+              stats: { trueVal: 0 },
               tag: 'm1',
             },
           },
@@ -270,12 +274,14 @@ describe('ObjectType schema test case', () => {
               schema: {
                 tests: {
                   type: 'Array',
+                  stats: { lengths: {} },
                   counter: 1,
                   tag: 'm2',
                   types: {
                     Boolean: {
                       type: 'Boolean',
                       counter: 1,
+                      stats: { trueVal: 0 },
                       tag: 'm2',
                     },
                   },
@@ -323,6 +329,7 @@ describe('ObjectType schema test case', () => {
             types: {
               Array: {
                 type: 'Array',
+                stats: { lengths: {} },
                 counter: 1,
                 types: {
                   Object: {

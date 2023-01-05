@@ -116,3 +116,14 @@ export interface Model {
   addToModel: (record: any) => void;
   traverseSchema: (path: string[]) => { schema?: SchemaType; path: string[] };
 }
+
+export interface ModelArgs {
+  tag: (record: any) => any;
+}
+export interface ModelOptions {
+  collectStatistics?: {
+    array?: boolean;
+    boolean?: boolean;
+  };
+  modifier?: (path: string[], node: any) => any;
+}
